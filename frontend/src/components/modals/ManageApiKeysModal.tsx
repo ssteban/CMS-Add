@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Key, Copy, Check, Download, AlertTriangle, Trash2, Plus, X, Loader2 } from 'lucide-react';
 import type { Project } from '../../context/ProjectContext';
-
-const API_BASE = 'http://127.0.0.1:8000';
+import { API_BASE } from '../../config';
 
 interface ManageApiKeysModalProps {
   isOpen: boolean;
@@ -142,6 +141,7 @@ const ManageApiKeysModal = ({ isOpen, onClose, project }: ManageApiKeysModalProp
   };
 
   const handleDownload = () => {
+    if (!project) return;
     const data = JSON.stringify({
       project: project.name,
       project_url: project.url,

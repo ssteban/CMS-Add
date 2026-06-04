@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { API_BASE } from '../config';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ const Register = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/v1/auth/register', {
+      const response = await fetch(`${API_BASE}/api/v1/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

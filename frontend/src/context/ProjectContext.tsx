@@ -1,8 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import { useAuth } from './AuthContext';
-
-const API_BASE = 'http://127.0.0.1:8000';
+import { API_BASE } from '../config';
 
 export interface Project {
   id: number;
