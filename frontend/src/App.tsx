@@ -1,22 +1,43 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import { ProjectProvider } from './context/ProjectContext';
+import ProtectedRoute from './components/ProtectedRoute';
 import MainLayout from './layouts/MainLayout';
+import DashboardLayout from './layouts/DashboardLayout';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
+import Dashboard from './pages/Dashboard';
+import Projects from './pages/Projects';
+import ProjectEditor from './pages/ProjectEditor';
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<MainLayout />}>
-          <Route index element={<Home />} />
-          <Route path="login" element={<Login />} />
-          <Route path="register" element={<Register />} />
-          <Route path="forgot-password" element={<ForgotPassword />} />
-        </Route>
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <ProjectProvider>
+        <Router>
+          <Routes>
+            {/* Rutas Públicas */}
+            <Route path="/" element={<MainLayout />}>
+              <Route index element={<Home />} />
+              <Route path="login" element={<Login />} />
+              <Route path="register" element={<Register />} />
+              <Route path="forgot-password" element={<ForgotPassword />} />
+            </Route>
+
+            {/* Rutas Privadas (Dashboard) */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/dashboard" element={<DashboardLayout />}>
+                <Route index element={<Dashboard />} />
+                <Route path="projects" element={<Projects />} />
+                <Route path="projects/:id/editor" element={<ProjectEditor />} />
+              </Route>
+            </Route>
+          </Routes>
+        </Router>
+      </ProjectProvider>
+    </AuthProvider>
   );
 }
 

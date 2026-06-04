@@ -1,6 +1,52 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Register = () => {
+  const navigate = useNavigate();
+  
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+
+    if (password !== confirmPassword) {
+      setError('Las contraseñas no coinciden');
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/v1/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        // El backend espera: username, email, password
+        body: JSON.stringify({ username, email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail || data.message || 'Error al registrar el usuario');
+      }
+
+      // Redirigir al login si el registro fue exitoso
+      navigate('/login');
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <section className="flex-grow flex items-center justify-center bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 border border-slate-100">
@@ -9,20 +55,28 @@ const Register = () => {
           <p className="mt-2 text-sm text-slate-600">Comienza a gestionar tus sitios web estáticos gratis</p>
         </div>
         
-        <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+        {error && (
+          <div className="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+            {error}
+          </div>
+        )}
+
+        <form className="space-y-6" onSubmit={handleRegister}>
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-slate-700">
-              Nombre Completo
+            <label htmlFor="username" className="block text-sm font-medium text-slate-700">
+              Nombre de Usuario
             </label>
             <div className="mt-1">
               <input
-                id="name"
-                name="name"
+                id="username"
+                name="username"
                 type="text"
-                autoComplete="name"
+                autoComplete="username"
                 required
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 className="appearance-none block w-full px-3 py-3 border border-slate-300 rounded-lg shadow-sm placeholder-slate-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-colors"
-                placeholder="Juan Pérez"
+                placeholder="juanperez"
               />
             </div>
           </div>
@@ -38,6 +92,8 @@ const Register = () => {
                 type="email"
                 autoComplete="email"
                 required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="appearance-none block w-full px-3 py-3 border border-slate-300 rounded-lg shadow-sm placeholder-slate-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-colors"
                 placeholder="tu@correo.com"
               />
@@ -55,6 +111,8 @@ const Register = () => {
                 type="password"
                 autoComplete="new-password"
                 required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="appearance-none block w-full px-3 py-3 border border-slate-300 rounded-lg shadow-sm placeholder-slate-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-colors"
                 placeholder="••••••••"
               />
@@ -72,6 +130,8 @@ const Register = () => {
                 type="password"
                 autoComplete="new-password"
                 required
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 className="appearance-none block w-full px-3 py-3 border border-slate-300 rounded-lg shadow-sm placeholder-slate-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-colors"
                 placeholder="••••••••"
               />
@@ -85,9 +145,10 @@ const Register = () => {
           <div>
             <button
               type="submit"
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+              disabled={isLoading}
+              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              Crear Cuenta
+              {isLoading ? 'Creando...' : 'Crear Cuenta'}
             </button>
           </div>
         </form>

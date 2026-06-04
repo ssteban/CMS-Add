@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 
-const Navbar = () => {
+const Navbar = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
   return (
     <nav className="bg-slate-900 text-white w-full border-b border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -21,9 +21,11 @@ const Navbar = () => {
               </svg>
               <span className="text-sm font-medium hidden sm:block">GitHub</span>
             </a>
-            <Link to="/login" className="bg-transparent border border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-slate-900 font-semibold py-2 px-4 rounded-lg transition-colors">
-              Iniciar Sesión
-            </Link>
+            {!isAuthenticated && (
+              <Link to="/login" className="bg-transparent border border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-slate-900 font-semibold py-2 px-4 rounded-lg transition-colors">
+                Iniciar Sesión
+              </Link>
+            )}
           </div>
         </div>
       </div>

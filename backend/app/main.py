@@ -1,16 +1,12 @@
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from .routers import auth_route
-from app.db.database import engine, Base
-
-# Crear tablas en la base de datos si no existen
-# Esto es útil para arrancar rápido localmente y conectarse a Neon
-Base.metadata.create_all(bind=engine)
+from app.routers import auth_route, user_route
+from app.utils.auth_util import verify_access_token
 
 app = FastAPI()
 
 app.add_middleware(
-    CORSMiddleware,
+    CORSMiddleware,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
@@ -29,6 +25,8 @@ async def health_check():
 
 
 app.include_router(auth_route.router, prefix="/api/v1/auth", tags=["auth"])
+
+app.include_router(user_route.router, prefix="/api/v1/user", tags=["user"], dependencies=[Depends(verify_access_token)])
 
 
 
