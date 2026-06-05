@@ -1,12 +1,29 @@
 import { Link } from 'react-router-dom';
+import { Menu } from 'lucide-react';
 
-const Navbar = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
+interface NavbarProps {
+  isAuthenticated?: boolean;
+  onMenuToggle?: () => void;
+}
+
+const Navbar = ({ isAuthenticated = false, onMenuToggle }: NavbarProps) => {
   return (
     <nav className="bg-slate-900 text-white w-full border-b border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <div className="flex-shrink-0 flex items-center">
-            <Link to="/" className="font-extrabold text-2xl tracking-tighter text-blue-400">CMS</Link>
+          <div className="flex items-center gap-3">
+            {isAuthenticated && onMenuToggle && (
+              <button
+                onClick={onMenuToggle}
+                className="lg:hidden p-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
+                aria-label="Abrir menú"
+              >
+                <Menu size={24} />
+              </button>
+            )}
+            <div className="flex-shrink-0 flex items-center">
+              <Link to="/" className="font-extrabold text-2xl tracking-tighter text-blue-400">CMS</Link>
+            </div>
           </div>
           <div className="flex items-center space-x-4">
             <a

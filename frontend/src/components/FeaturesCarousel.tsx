@@ -70,12 +70,12 @@ const FeaturesCarousel = () => {
             />
           </div>
 
-          <button onClick={prevSlide} className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 p-3 rounded-full shadow hover:bg-white md:-left-4 text-slate-600 transition z-20">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+          <button onClick={prevSlide} className="absolute left-2 md:-left-4 top-1/2 -translate-y-1/2 bg-white/90 p-4 md:p-3 rounded-full shadow hover:bg-white text-slate-600 transition z-20">
+            <svg className="w-8 h-8 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
           </button>
           
-          <button onClick={nextSlide} className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 p-3 rounded-full shadow hover:bg-white md:-right-4 text-slate-600 transition z-20">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+          <button onClick={nextSlide} className="absolute right-2 md:-right-4 top-1/2 -translate-y-1/2 bg-white/90 p-4 md:p-3 rounded-full shadow hover:bg-white text-slate-600 transition z-20">
+            <svg className="w-8 h-8 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
           </button>
           
         </div>

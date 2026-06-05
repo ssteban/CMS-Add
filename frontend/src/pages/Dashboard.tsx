@@ -75,7 +75,7 @@ const Dashboard = () => {
                   </div>
                   <Link 
                     to={`/dashboard/projects/${project.id}/editor`}
-                    className="px-4 py-2 text-sm font-medium text-blue-700 bg-blue-50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="px-4 py-2 text-sm font-medium text-blue-700 bg-blue-50 rounded-lg opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
                   >
                     Editar
                   </Link>

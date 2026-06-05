@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 
 const Hero = () => {
   return (
-    <section className="bg-gradient-to-b from-blue-700 from-50% via-blue-500 via-85% to-white min-h-[90vh] pt-24 sm:pt-32 pb-24 sm:pb-32 flex flex-col items-center justify-center px-4">
+    <section className="bg-gradient-to-b from-blue-700 from-50% via-blue-500 via-85% to-white min-h-[80vh] sm:min-h-[90vh] pt-24 sm:pt-32 pb-24 sm:pb-32 flex flex-col items-center justify-center px-4">
       <div className="max-w-4xl mx-auto text-center">
         <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white tracking-tight leading-tight mb-8 drop-shadow-sm">
           El CMS Multi-tenant Open Source para tus Webs Estáticas
