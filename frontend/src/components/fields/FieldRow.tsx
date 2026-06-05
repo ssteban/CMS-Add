@@ -9,8 +9,13 @@ export interface ComponentField {
 
 interface FieldRowProps {
   field: ComponentField;
+  index: number;
   onUpdate: (id: string, data: Partial<ComponentField>) => void;
   onDelete: (id: string) => void;
+  onDragStart: (index: number) => void;
+  onDragEnd: () => void;
+  isDragging: boolean;
+  isDragOver: boolean;
 }
 
 const FIELD_TYPES = [
@@ -22,10 +27,29 @@ const FIELD_TYPES = [
   { value: 'richtext', label: 'Texto Rico' },
 ];
 
-const FieldRow = ({ field, onUpdate, onDelete }: FieldRowProps) => {
+const FieldRow = ({ field, index, onUpdate, onDelete, onDragStart, onDragEnd, isDragging, isDragOver }: FieldRowProps) => {
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', String(index));
+    onDragStart(index);
+  };
+
   return (
-    <div className="group flex items-start gap-3 p-4 bg-white border border-slate-200 rounded-xl hover:border-blue-200 hover:shadow-sm transition-all">
-      <div className="shrink-0 mt-2.5 text-slate-300 cursor-move opacity-0 group-hover:opacity-100 transition-opacity">
+    <div
+      draggable
+      onDragStart={handleDragStart}
+      onDragEnd={onDragEnd}
+      className={`
+        group flex items-start gap-3 p-4 bg-white border rounded-xl transition-all
+        ${isDragging
+          ? 'opacity-50 ring-2 ring-blue-400 scale-[1.01] shadow-lg border-blue-300'
+          : isDragOver
+            ? 'border-t-2 border-blue-500 border-slate-200'
+            : 'border-slate-200 hover:border-blue-200 hover:shadow-sm'
+        }
+      `}
+    >
+      <div className="shrink-0 mt-2.5 text-slate-400 cursor-grab active:cursor-grabbing transition-colors hover:text-blue-500">
         <GripVertical size={18} />
       </div>
 

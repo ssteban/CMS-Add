@@ -62,7 +62,7 @@ def decode_token(token: str):
         raise Exception("Token inválido")
 
 def create_api_key():
-    return secrets.token_urlsafe(32)
+    return f"cms_live_{secrets.token_urlsafe(32)}"
 
 def hash_api_key(plain_key: str) -> str:
     return hashlib.sha256(plain_key.encode()).hexdigest()

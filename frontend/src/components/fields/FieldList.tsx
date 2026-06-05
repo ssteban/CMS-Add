@@ -1,3 +1,4 @@
+import { useState, useCallback } from 'react';
 import { Plus } from 'lucide-react';
 import FieldRow from './FieldRow';
 import type { ComponentField } from './FieldRow';
@@ -7,9 +8,45 @@ interface FieldListProps {
   onUpdate: (id: string, data: Partial<ComponentField>) => void;
   onDelete: (id: string) => void;
   onAdd: () => void;
+  onReorder: (fromIndex: number, toIndex: number) => void;
 }
 
-const FieldList = ({ fields, onUpdate, onDelete, onAdd }: FieldListProps) => {
+const FieldList = ({ fields, onUpdate, onDelete, onAdd, onReorder }: FieldListProps) => {
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+
+  const handleDragStart = useCallback((index: number) => {
+    setDraggedIndex(index);
+  }, []);
+
+  const handleDragEnd = useCallback(() => {
+    if (draggedIndex !== null && dragOverIndex !== null && draggedIndex !== dragOverIndex) {
+      onReorder(draggedIndex, dragOverIndex);
+    }
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  }, [draggedIndex, dragOverIndex, onReorder]);
+
+  const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>, index: number) => {
+    e.preventDefault();
+    if (draggedIndex !== index) {
+      setDragOverIndex(index);
+    }
+  }, [draggedIndex]);
+
+  const handleDragLeave = useCallback(() => {
+    setDragOverIndex(null);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>, index: number) => {
+    e.preventDefault();
+    if (draggedIndex !== null && draggedIndex !== index) {
+      onReorder(draggedIndex, index);
+    }
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  }, [draggedIndex, onReorder]);
+
   return (
     <div className="space-y-3">
       {fields.length === 0 ? (
@@ -32,13 +69,24 @@ const FieldList = ({ fields, onUpdate, onDelete, onAdd }: FieldListProps) => {
         </div>
       ) : (
         <>
-          {fields.map((field) => (
-            <FieldRow
+          {fields.map((field, index) => (
+            <div
               key={field.id}
-              field={field}
-              onUpdate={onUpdate}
-              onDelete={onDelete}
-            />
+              onDragOver={(e) => handleDragOver(e, index)}
+              onDragLeave={handleDragLeave}
+              onDrop={(e) => handleDrop(e, index)}
+            >
+              <FieldRow
+                field={field}
+                index={index}
+                onUpdate={onUpdate}
+                onDelete={onDelete}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+                isDragging={draggedIndex === index}
+                isDragOver={dragOverIndex === index}
+              />
+            </div>
           ))}
           <button
             type="button"
