@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Save, Code, Plus, CheckCircle2, Loader2, X, AlertTriangle, Play } from 'lucide-react';
+import { ArrowLeft, Save, Code, Plus, CheckCircle2, Loader2, X, AlertTriangle, Play, BookOpen } from 'lucide-react';
 import { useProjects } from '../context/ProjectContext';
 import { API_BASE } from '../config';
 import FieldList from '../components/fields/FieldList';
@@ -292,6 +292,20 @@ const ProjectEditor = () => {
           </button>
         </div>
       </div>
+
+      {publishSuccess && (
+        <div className="mb-4 bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-lg flex items-center gap-2 text-sm">
+          <CheckCircle2 size={18} className="shrink-0" />
+          <span className="flex-1">JSON publicado exitosamente.</span>
+          <Link
+            to="/uso"
+            className="text-blue-600 hover:text-blue-700 font-medium hover:underline inline-flex items-center gap-1 shrink-0"
+          >
+            <BookOpen size={16} />
+            Ver ejemplos de uso
+          </Link>
+        </div>
+      )}
 
       {error && (
         <div className="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">

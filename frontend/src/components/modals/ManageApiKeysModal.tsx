@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Key, Copy, Check, Download, AlertTriangle, Trash2, Plus, X, Loader2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Key, Copy, Check, Download, AlertTriangle, Trash2, Plus, X, Loader2, BookOpen } from 'lucide-react';
 import type { Project } from '../../context/ProjectContext';
 import { API_BASE } from '../../config';
 
@@ -365,6 +366,17 @@ const ManageApiKeysModal = ({ isOpen, onClose, project }: ManageApiKeysModalProp
                 >
                   He guardado mi llave
                 </button>
+              </div>
+
+              <div className="text-center pt-2">
+                <Link
+                  to="/uso"
+                  onClick={onClose}
+                  className="text-blue-600 hover:text-blue-700 font-medium text-sm hover:underline inline-flex items-center gap-1.5"
+                >
+                  <BookOpen size={16} />
+                  Ver ejemplos de uso en todos los lenguajes
+                </Link>
               </div>
             </div>
           )}

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Menu } from 'lucide-react';
+import { Menu, BookOpen, Code } from 'lucide-react';
 
 interface NavbarProps {
   isAuthenticated?: boolean;
@@ -38,6 +38,32 @@ const Navbar = ({ isAuthenticated = false, onMenuToggle }: NavbarProps) => {
               </svg>
               <span className="text-sm font-medium hidden sm:block">GitHub</span>
             </a>
+            <Link
+              to="/docs"
+              className="bg-slate-800 border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-700 hover:border-slate-600 font-semibold py-2 px-4 rounded-lg transition-colors flex items-center gap-2"
+            >
+              <BookOpen size={18} />
+              <span className="text-sm font-medium hidden sm:block">Docs</span>
+            </Link>
+            {isAuthenticated ? (
+              <a
+                href="/uso"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-slate-800 border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-700 hover:border-slate-600 font-semibold py-2 px-4 rounded-lg transition-colors flex items-center gap-2"
+              >
+                <Code size={18} />
+                <span className="text-sm font-medium hidden sm:block">Uso</span>
+              </a>
+            ) : (
+              <Link
+                to="/uso"
+                className="bg-slate-800 border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-700 hover:border-slate-600 font-semibold py-2 px-4 rounded-lg transition-colors flex items-center gap-2"
+              >
+                <Code size={18} />
+                <span className="text-sm font-medium hidden sm:block">Uso</span>
+              </Link>
+            )}
             {!isAuthenticated && (
               <Link to="/login" className="bg-transparent border border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-slate-900 font-semibold py-2 px-4 rounded-lg transition-colors">
                 Iniciar Sesión

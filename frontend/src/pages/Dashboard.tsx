@@ -1,4 +1,4 @@
-import { LayoutDashboard, FileText, Globe, ArrowRight } from 'lucide-react';
+import { Globe, FileText, LayoutDashboard, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useProjects } from '../context/ProjectContext';
 
@@ -23,14 +23,14 @@ const Dashboard = () => {
             <p className="text-2xl font-bold text-slate-900">{projects.length}</p>
           </div>
         </div>
-        
+
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex items-center gap-4">
           <div className="bg-indigo-100 text-indigo-600 p-4 rounded-lg">
             <FileText size={24} />
           </div>
           <div>
             <p className="text-sm font-medium text-slate-500">Esquemas Creados</p>
-            <p className="text-2xl font-bold text-slate-900">{projects.length > 0 ? projects.length * 3 : '0'}</p>
+            <p className="text-2xl font-bold text-slate-900">&mdash;</p>
           </div>
         </div>
 
@@ -40,7 +40,7 @@ const Dashboard = () => {
           </div>
           <div>
             <p className="text-sm font-medium text-slate-500">Peticiones API (Mes)</p>
-            <p className="text-2xl font-bold text-slate-900">{projects.length > 0 ? '1,204' : '0'}</p>
+            <p className="text-2xl font-bold text-slate-900">&mdash;</p>
           </div>
         </div>
       </div>

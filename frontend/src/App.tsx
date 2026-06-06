@@ -8,6 +8,8 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
+import Docs from './pages/Docs';
+import Uso from './pages/Uso';
 import Dashboard from './pages/Dashboard';
 import Projects from './pages/Projects';
 import ProjectEditor from './pages/ProjectEditor';
@@ -24,6 +26,8 @@ function App() {
               <Route path="login" element={<Login />} />
               <Route path="register" element={<Register />} />
               <Route path="forgot-password" element={<ForgotPassword />} />
+              <Route path="docs" element={<Docs />} />
+              <Route path="uso" element={<Uso />} />
             </Route>
 
             {/* Rutas Privadas (Dashboard) */}
