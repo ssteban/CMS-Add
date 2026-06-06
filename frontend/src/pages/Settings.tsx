@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { User, Lock, Palette, AlertTriangle, Save, Loader2, CheckCircle2, Eye, EyeOff, Key, FolderKanban, Sun, Moon, X } from 'lucide-react';
+import { User, Lock, Palette, AlertTriangle, Save, Loader2, CheckCircle2, Eye, EyeOff, Key, FolderKanban, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { API_BASE } from '../config';
 
 const Settings = () => {
-  const { token, username } = useAuth();
+  const { token } = useAuth();
 
   // Perfil
   const [profileUsername, setProfileUsername] = useState('');
