@@ -181,33 +181,33 @@ const ManageApiKeysModal = ({ isOpen, onClose, project }: ManageApiKeysModalProp
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm transition-opacity px-4">
-      <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full overflow-hidden animate-in fade-in zoom-in duration-200 flex flex-col max-h-[90vh]">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl max-w-2xl w-full overflow-hidden animate-in fade-in zoom-in duration-200 flex flex-col max-h-[90vh]">
 
         {/* Header */}
-        <div className="p-6 border-b border-slate-100 flex items-center gap-4 bg-slate-50 shrink-0 relative">
-          <div className="p-3 bg-blue-100 text-blue-600 rounded-lg">
+        <div className="p-6 border-b border-slate-100 dark:border-slate-700 flex items-center gap-4 bg-slate-50 dark:bg-slate-900 shrink-0 relative">
+          <div className="p-3 bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded-lg">
             <Key size={24} />
           </div>
           <div className="flex-1">
-            <h3 className="text-xl font-bold text-slate-900 leading-tight">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 leading-tight">
               {view === 'create_form' ? 'Nueva Llave API' :
                view === 'new_key' ? 'Llave Creada' :
                view === 'revoke' ? 'Revocar Llave' :
                'Credenciales API'}
             </h3>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               {view === 'new_key' && newKeyName ? (
-                <>Llave: <span className="font-semibold text-slate-700">{newKeyName}</span></>
+                <>Llave: <span className="font-semibold text-slate-700 dark:text-slate-300">{newKeyName}</span></>
               ) : view === 'revoke' && keyToRevoke ? (
-                <>Llave: <span className="font-semibold text-slate-700">{keyToRevoke.keyName}</span></>
+                <>Llave: <span className="font-semibold text-slate-700 dark:text-slate-300">{keyToRevoke.keyName}</span></>
               ) : (
-                <>Proyecto: <span className="font-semibold text-slate-700">{project.name}</span></>
+                <>Proyecto: <span className="font-semibold text-slate-700 dark:text-slate-300">{project.name}</span></>
               )}
             </p>
           </div>
           <button
             onClick={handleCloseAndReset}
-            className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 rounded-lg transition-colors absolute top-4 right-4"
+            className="p-2 text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-700/60 rounded-lg transition-colors absolute top-4 right-4"
             title="Cerrar"
           >
             <X size={20} />
@@ -218,7 +218,7 @@ const ManageApiKeysModal = ({ isOpen, onClose, project }: ManageApiKeysModalProp
         <div className="p-6 overflow-y-auto flex-1">
 
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+            <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 rounded-lg text-sm">
               {error}
             </div>
           )}
@@ -227,7 +227,7 @@ const ManageApiKeysModal = ({ isOpen, onClose, project }: ManageApiKeysModalProp
           {view === 'list' && (
             <div className="space-y-6">
               <div className="flex justify-between items-center">
-                <p className="text-sm text-slate-600">Administra las llaves de acceso para consumir el contenido de este proyecto.</p>
+                <p className="text-sm text-slate-600 dark:text-slate-400">Administra las llaves de acceso para consumir el contenido de este proyecto.</p>
                 <button
                   onClick={() => setView('create_form')}
                   disabled={isLoading}
@@ -240,26 +240,26 @@ const ManageApiKeysModal = ({ isOpen, onClose, project }: ManageApiKeysModalProp
 
               {isLoading ? (
                 <div className="flex items-center justify-center py-12">
-                  <Loader2 size={24} className="animate-spin text-slate-400" />
+                  <Loader2 size={24} className="animate-spin text-slate-400 dark:text-slate-500" />
                 </div>
               ) : apiKeys.length === 0 ? (
-                <div className="text-center py-12 bg-slate-50 border border-dashed border-slate-200 rounded-xl">
+                <div className="text-center py-12 bg-slate-50 dark:bg-slate-900 border border-dashed border-slate-200 dark:border-slate-700 rounded-xl">
                   <Key size={32} className="mx-auto text-slate-300 mb-3" />
-                  <p className="text-slate-500 font-medium">No hay llaves activas</p>
-                  <p className="text-sm text-slate-400 mt-1">Genera una llave para conectar tu frontend estático.</p>
+                  <p className="text-slate-500 dark:text-slate-400 font-medium">No hay llaves activas</p>
+                  <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">Genera una llave para conectar tu frontend estático.</p>
                 </div>
               ) : (
                 <div className="space-y-3">
                   {apiKeys.map((key) => (
-                    <div key={key.id} className="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-xl shadow-sm hover:border-blue-200 transition-colors">
+                    <div key={key.id} className="flex items-center justify-between p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm hover:border-blue-200 dark:hover:border-blue-700 transition-colors">
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-bold text-slate-900 mb-0.5 truncate">{key.keyName}</p>
-                        <p className="font-mono text-xs text-slate-500 mb-1">{key.maskedKey}</p>
-                        <p className="text-xs text-slate-400">Creada el {key.createdAt}</p>
+                        <p className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-0.5 truncate">{key.keyName}</p>
+                        <p className="font-mono text-xs text-slate-500 dark:text-slate-400 mb-1">{key.maskedKey}</p>
+                        <p className="text-xs text-slate-400 dark:text-slate-500">Creada el {key.createdAt}</p>
                       </div>
                       <button
                         onClick={() => handleRevokeClick(key)}
-                        className="p-2 text-red-400 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors ml-3 shrink-0"
+                        className="p-2 text-red-400 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors ml-3 shrink-0"
                         title="Revocar llave"
                       >
                         <Trash2 size={18} />
@@ -275,7 +275,7 @@ const ManageApiKeysModal = ({ isOpen, onClose, project }: ManageApiKeysModalProp
           {view === 'create_form' && (
             <div className="space-y-6 animate-in fade-in zoom-in-95 duration-200">
               <div>
-                <label htmlFor="keyName" className="block text-sm font-medium text-slate-700 mb-1">
+                <label htmlFor="keyName" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                   Nombre de la llave
                 </label>
                 <input
@@ -285,18 +285,18 @@ const ManageApiKeysModal = ({ isOpen, onClose, project }: ManageApiKeysModalProp
                   disabled={isLoading}
                   value={keyNameInput}
                   onChange={(e) => setKeyNameInput(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2.5 border border-slate-300 rounded-lg shadow-sm placeholder-slate-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="appearance-none block w-full px-3 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg shadow-sm placeholder-slate-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   placeholder="Ej: Producción, Local, Staging"
                   autoFocus
                 />
-                <p className="mt-1 text-xs text-slate-400">Asigna un nombre descriptivo para identificar esta llave fácilmente.</p>
+                <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">Asigna un nombre descriptivo para identificar esta llave fácilmente.</p>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3 pt-2">
                 <button
                   onClick={() => { setView('list'); setError(''); setKeyNameInput(''); }}
                   disabled={isLoading}
-                  className="flex-1 px-4 py-3 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-4 py-3 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancelar
                 </button>
@@ -319,14 +319,14 @@ const ManageApiKeysModal = ({ isOpen, onClose, project }: ManageApiKeysModalProp
           {view === 'new_key' && (
             <div className="space-y-6 animate-in slide-in-from-right-4 duration-300">
               {newKeyName && (
-                <div className="bg-blue-50 border border-blue-200 rounded-xl p-3">
+                <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-xl p-3">
                   <p className="text-sm text-blue-800">
                     <span className="font-semibold">Llave:</span> {newKeyName}
                   </p>
                 </div>
               )}
 
-              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex gap-4 items-start">
+              <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 flex gap-4 items-start">
                 <AlertTriangle className="text-amber-500 shrink-0 mt-0.5" size={24} />
                 <div>
                   <h4 className="font-bold text-amber-800 mb-1">¡Guarda esta clave ahora!</h4>
@@ -352,10 +352,10 @@ const ManageApiKeysModal = ({ isOpen, onClose, project }: ManageApiKeysModalProp
                 </button>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-slate-100">
+              <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-slate-100 dark:border-slate-700">
                 <button
                   onClick={handleDownload}
-                  className="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-100 font-medium transition-colors flex items-center justify-center gap-2"
+                  className="flex-1 px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 font-medium transition-colors flex items-center justify-center gap-2"
                 >
                   <Download size={18} />
                   Descargar como JSON
@@ -384,13 +384,13 @@ const ManageApiKeysModal = ({ isOpen, onClose, project }: ManageApiKeysModalProp
           {/* VISTA 4: Confirmar Revocación */}
           {view === 'revoke' && keyToRevoke && (
             <div className="space-y-2 animate-in fade-in zoom-in-95 duration-200 py-2">
-              <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-2">
+              <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center mx-auto mb-2">
                 <AlertTriangle className="text-red-600" size={32} />
               </div>
               <div className="text-center">
-                <h4 className="text-xl font-bold text-slate-900 mb-2">¿Revocar Credencial?</h4>
-                <p className="text-sm font-semibold text-slate-700 mb-1">{keyToRevoke.keyName}</p>
-                <p className="text-slate-600 max-w-sm mx-auto text-sm">
+                <h4 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">¿Revocar Credencial?</h4>
+                <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">{keyToRevoke.keyName}</p>
+                <p className="text-slate-600 dark:text-slate-400 max-w-sm mx-auto text-sm">
                   Esta acción no se puede deshacer. La llave <strong className="font-mono text-xs">{keyToRevoke.maskedKey}</strong> perderá el acceso inmediatamente.
                 </p>
               </div>
@@ -399,7 +399,7 @@ const ManageApiKeysModal = ({ isOpen, onClose, project }: ManageApiKeysModalProp
                 <button
                   onClick={cancelRevokeKey}
                   disabled={isLoading}
-                  className="flex-1 px-4 py-3 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-4 py-3 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancelar
                 </button>
@@ -422,10 +422,10 @@ const ManageApiKeysModal = ({ isOpen, onClose, project }: ManageApiKeysModalProp
 
         {/* Footer (Solo en vista lista) */}
         {view === 'list' && (
-          <div className="p-4 border-t border-slate-100 bg-slate-50 flex justify-end shrink-0">
+          <div className="p-4 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 flex justify-end shrink-0">
             <button
               onClick={handleCloseAndReset}
-              className="px-6 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-white font-medium transition-colors"
+              className="px-6 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-white dark:hover:bg-slate-700 font-medium transition-colors"
             >
               Cerrar
             </button>

@@ -205,7 +205,7 @@ const ProjectEditor = () => {
   if (!project) {
     return (
       <div className="text-center py-20">
-        <h2 className="text-2xl font-bold text-slate-900">Proyecto no encontrado</h2>
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Proyecto no encontrado</h2>
         <Link to="/dashboard/projects" className="text-blue-600 hover:underline mt-4 inline-block">
           Volver a Mis Proyectos
         </Link>
@@ -216,24 +216,24 @@ const ProjectEditor = () => {
   if (isLoadingFields) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 size={24} className="animate-spin text-slate-400" />
+        <Loader2 size={24} className="animate-spin text-slate-400 dark:text-slate-500" />
       </div>
     );
   }
 
   return (
     <div className="max-w-5xl mx-auto pb-12">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4 pb-4 border-b border-slate-200">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4 pb-4 border-b border-slate-200 dark:border-slate-700">
         <div className="flex items-center gap-4">
           <Link
             to="/dashboard/projects"
-            className="p-2 bg-slate-100 text-slate-600 rounded-full hover:bg-slate-200 transition-colors"
+            className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
           >
             <ArrowLeft size={20} />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Editor: {project.name}</h1>
-            <p className="text-sm text-slate-500">
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Editor: {project.name}</h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               {fieldCount > 0
                 ? `${fieldCount} campo(s) definido(s)`
                 : 'Añade campos para construir el esquema'}
@@ -244,7 +244,7 @@ const ProjectEditor = () => {
           <button
             type="button"
             onClick={() => setShowJsonPreview(true)}
-            className="flex-1 sm:flex-none px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 font-medium transition-colors flex items-center justify-center gap-2"
+            className="flex-1 sm:flex-none px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 font-medium transition-colors flex items-center justify-center gap-2"
           >
             <Code size={18} />
             Ver JSON
@@ -294,7 +294,7 @@ const ProjectEditor = () => {
       </div>
 
       {publishSuccess && (
-        <div className="mb-4 bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-lg flex items-center gap-2 text-sm">
+        <div className="mb-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-emerald-700 px-4 py-3 rounded-lg flex items-center gap-2 text-sm">
           <CheckCircle2 size={18} className="shrink-0" />
           <span className="flex-1">JSON publicado exitosamente.</span>
           <Link
@@ -308,7 +308,7 @@ const ProjectEditor = () => {
       )}
 
       {error && (
-        <div className="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+        <div className="mb-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 px-4 py-3 rounded-lg text-sm">
           {error}
         </div>
       )}
@@ -342,20 +342,20 @@ const ProjectEditor = () => {
       {/* Modal de prueba del endpoint */}
       {showTestModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm transition-opacity px-4">
-          <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full overflow-hidden animate-in fade-in zoom-in duration-200 flex flex-col max-h-[90vh]">
-            <div className="p-6 border-b border-slate-100 flex items-center justify-between shrink-0">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl max-w-2xl w-full overflow-hidden animate-in fade-in zoom-in duration-200 flex flex-col max-h-[90vh]">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-emerald-100 text-emerald-600 rounded-lg">
+                <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 rounded-lg">
                   <CheckCircle2 size={20} />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900">Endpoint Funcionando</h3>
-                  <p className="text-sm text-slate-500">JSON publicado obtenido desde el servidor</p>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">Endpoint Funcionando</h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">JSON publicado obtenido desde el servidor</p>
                 </div>
               </div>
               <button
                 onClick={() => setShowTestModal(false)}
-                className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+                className="p-2 text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
               >
                 <X size={20} />
               </button>
@@ -365,10 +365,10 @@ const ProjectEditor = () => {
                 <code>{testResultJson}</code>
               </pre>
             </div>
-            <div className="p-4 border-t border-slate-100 flex justify-end shrink-0 bg-slate-50">
+            <div className="p-4 border-t border-slate-100 dark:border-slate-700 flex justify-end shrink-0 bg-slate-50 dark:bg-slate-900">
               <button
                 onClick={() => setShowTestModal(false)}
-                className="px-6 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-white font-medium transition-colors"
+                className="px-6 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-white dark:hover:bg-slate-700 font-medium transition-colors"
               >
                 Cerrar
               </button>
@@ -380,33 +380,33 @@ const ProjectEditor = () => {
       {/* Modal de confirmación de publicación */}
       {showPublishModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm transition-opacity px-4">
-          <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in duration-200 flex flex-col max-h-[90vh]">
-            <div className="p-6 border-b border-slate-100 flex items-center gap-3 shrink-0">
-              <div className="p-2.5 bg-amber-100 text-amber-600 rounded-full">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in duration-200 flex flex-col max-h-[90vh]">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-700 flex items-center gap-3 shrink-0">
+              <div className="p-2.5 bg-amber-100 dark:bg-amber-900/20 text-amber-600 rounded-full">
                 <AlertTriangle size={22} />
               </div>
               <div className="flex-1">
-                <h3 className="text-lg font-bold text-slate-900">¿Publicar JSON?</h3>
-                <p className="text-sm text-slate-500">
+                <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">¿Publicar JSON?</h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400">
                   Se guardará el JSON final en la base de datos y sobrescribirá la publicación anterior.
                 </p>
               </div>
               <button
                 onClick={() => setShowPublishModal(false)}
-                className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+                className="p-2 text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
               >
                 <X size={20} />
               </button>
             </div>
 
             <div className="p-6 overflow-y-auto flex-1">
-              <p className="text-xs font-medium text-slate-400 uppercase tracking-wider mb-2">
+              <p className="text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">
                 Vista previa del JSON
               </p>
               <pre className="bg-slate-900 text-slate-100 rounded-xl p-4 text-xs font-mono leading-relaxed overflow-x-auto whitespace-pre max-h-64">
                 <code>{publishJson}</code>
               </pre>
-              <p className="text-xs text-slate-400 mt-2">
+              <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">
                 {fieldCount} campo(s) —{" "}
                 {new TextEncoder().encode(publishJson).length > 1024
                   ? `${(new TextEncoder().encode(publishJson).length / 1024).toFixed(1)} KB`
@@ -414,11 +414,11 @@ const ProjectEditor = () => {
               </p>
             </div>
 
-            <div className="p-4 border-t border-slate-100 flex flex-col sm:flex-row gap-3 shrink-0 bg-slate-50">
+            <div className="p-4 border-t border-slate-100 dark:border-slate-700 flex flex-col sm:flex-row gap-3 shrink-0 bg-slate-50 dark:bg-slate-900">
               <button
                 onClick={() => setShowPublishModal(false)}
                 disabled={isPublishing}
-                className="flex-1 px-4 py-3 border border-slate-300 text-slate-700 rounded-lg hover:bg-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-4 py-3 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-white dark:hover:bg-slate-700 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancelar
               </button>

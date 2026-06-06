@@ -48,12 +48,12 @@ const JsonPreview = ({ fields, isOpen, onClose, projectName }: JsonPreviewProps)
       <div className="relative w-full max-w-lg bg-white shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
         <div className="flex items-center justify-between p-4 border-b border-slate-200 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
+            <div className="p-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded-lg">
               <Code size={20} />
             </div>
             <div>
-              <h3 className="font-bold text-slate-900">Vista JSON</h3>
-              <p className="text-xs text-slate-500">
+              <h3 className="font-bold text-slate-900 dark:text-slate-100">Vista JSON</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 {validFields.length} campo(s)
               </p>
             </div>
@@ -64,8 +64,8 @@ const JsonPreview = ({ fields, isOpen, onClose, projectName }: JsonPreviewProps)
               onClick={handleCopy}
               className={`p-2 rounded-lg transition-colors ${
                 copied
-                  ? 'bg-emerald-50 text-emerald-600'
-                  : 'text-slate-500 hover:bg-slate-100'
+                  ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400'
+                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
               }`}
               title="Copiar JSON"
             >
@@ -74,7 +74,7 @@ const JsonPreview = ({ fields, isOpen, onClose, projectName }: JsonPreviewProps)
             <button
               type="button"
               onClick={onClose}
-              className="p-2 text-slate-500 hover:bg-slate-100 rounded-lg transition-colors"
+              className="p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
             >
               <X size={18} />
             </button>
@@ -84,9 +84,9 @@ const JsonPreview = ({ fields, isOpen, onClose, projectName }: JsonPreviewProps)
         <div className="flex-1 overflow-y-auto p-4">
           {validFields.length === 0 ? (
             <div className="text-center py-12">
-              <Code size={32} className="mx-auto text-slate-300 mb-3" />
-              <p className="text-slate-500 font-medium">JSON vacío</p>
-              <p className="text-sm text-slate-400 mt-1">
+              <Code size={32} className="mx-auto text-slate-300 dark:text-slate-500 mb-3" />
+              <p className="text-slate-500 dark:text-slate-400 font-medium">JSON vacío</p>
+              <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">
                 Añade campos para ver el JSON en vivo.
               </p>
             </div>
@@ -97,7 +97,7 @@ const JsonPreview = ({ fields, isOpen, onClose, projectName }: JsonPreviewProps)
           )}
         </div>
 
-        <div className="p-4 border-t border-slate-200 shrink-0 flex justify-end bg-slate-50">
+        <div className="p-4 border-t border-slate-200 dark:border-slate-700 shrink-0 flex justify-end bg-slate-50 dark:bg-slate-900">
           <button
             type="button"
             onClick={handleCopy}

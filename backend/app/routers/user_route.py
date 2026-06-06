@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.utils.auth_util import verify_access_token, create_api_key, hash_api_key, mask_api_key, mask_key_hash
 from app.models.proyect_model import CreateProyect, UpdateProyect, CreateApiKeyRequest
+from app.models.user_model import UpdateProfileRequest, changePasswordRequest
 from app.db.proyect_query import proyectQuery
 from app.db.api_key_query import apiKeyQuery
+from app.db.auth_query import AuthQuery
 
 router = APIRouter()
 
@@ -129,3 +131,42 @@ async def revoke_api_key(proyect_id: int, key_id: int, user_id: int = Depends(ve
         )
 
     return {"status": "success", "message": "Llave revocada exitosamente"}
+
+
+@router.get("/profile")
+async def get_profile(user_id: int = Depends(verify_access_token)):
+    result = AuthQuery.get_profile(user_id)
+
+    if result.get("status") == "error":
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=result.get("message")
+        )
+
+    return {"status": "success", "profile": result["profile"]}
+
+
+@router.put("/profile")
+async def update_profile(body: UpdateProfileRequest, user_id: int = Depends(verify_access_token)):
+    result = AuthQuery.update_profile(user_id, body.username, body.email)
+
+    if result.get("status") == "error":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=result.get("message")
+        )
+
+    return {"status": "success", "profile": result["profile"]}
+
+
+@router.post("/change-password")
+async def change_password(body: changePasswordRequest, user_id: int = Depends(verify_access_token)):
+    result = AuthQuery.change_password(user_id, body.password, body.new_password)
+
+    if result.get("status") == "error":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=result.get("message")
+        )
+
+    return {"status": "success", "message": result["message"]}

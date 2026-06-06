@@ -23,3 +23,7 @@ class PasswordRecoveryRequest(BaseModel):
 class changePasswordRequest(BaseModel):
     password: str
     new_password: str
+
+class UpdateProfileRequest(BaseModel):
+    username: str | None = None
+    email: str | None = None

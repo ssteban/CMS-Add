@@ -50,12 +50,12 @@ const FieldList = ({ fields, onUpdate, onDelete, onAdd, onReorder }: FieldListPr
   return (
     <div className="space-y-3">
       {fields.length === 0 ? (
-        <div className="text-center py-16 bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl">
-          <div className="mx-auto w-14 h-14 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mb-4">
+        <div className="text-center py-16 bg-slate-50 dark:bg-slate-800/50 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl">
+          <div className="mx-auto w-14 h-14 bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 rounded-full flex items-center justify-center mb-4">
             <Plus size={28} />
           </div>
-          <h3 className="text-lg font-bold text-slate-900 mb-1">Aún no hay campos</h3>
-          <p className="text-sm text-slate-500 mb-6 max-w-sm mx-auto">
+          <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-1">Aún no hay campos</h3>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 max-w-sm mx-auto">
             Añade tu primer campo para empezar a construir el esquema de contenido de tu sitio web.
           </p>
           <button
@@ -91,7 +91,7 @@ const FieldList = ({ fields, onUpdate, onDelete, onAdd, onReorder }: FieldListPr
           <button
             type="button"
             onClick={onAdd}
-            className="w-full py-3 border-2 border-dashed border-slate-300 text-slate-500 rounded-xl hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50/50 font-medium transition-all flex items-center justify-center gap-2"
+            className="w-full py-3 border-2 border-dashed border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400 rounded-xl hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50/50 dark:hover:bg-blue-900/20 font-medium transition-all flex items-center justify-center gap-2"
           >
             <Plus size={18} />
             Añadir otro campo

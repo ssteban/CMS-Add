@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ProjectProvider } from './context/ProjectContext';
@@ -13,8 +14,18 @@ import Uso from './pages/Uso';
 import Dashboard from './pages/Dashboard';
 import Projects from './pages/Projects';
 import ProjectEditor from './pages/ProjectEditor';
+import Settings from './pages/Settings';
 
 function App() {
+  useEffect(() => {
+    const saved = localStorage.getItem('theme');
+    if (saved === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
   return (
     <AuthProvider>
       <ProjectProvider>
@@ -36,6 +47,7 @@ function App() {
                 <Route index element={<Dashboard />} />
                 <Route path="projects" element={<Projects />} />
                 <Route path="projects/:id/editor" element={<ProjectEditor />} />
+                <Route path="settings" element={<Settings />} />
               </Route>
             </Route>
           </Routes>

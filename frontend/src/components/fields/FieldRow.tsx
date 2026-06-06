@@ -40,16 +40,16 @@ const FieldRow = ({ field, index, onUpdate, onDelete, onDragStart, onDragEnd, is
       onDragStart={handleDragStart}
       onDragEnd={onDragEnd}
       className={`
-        group flex items-start gap-3 p-4 bg-white border rounded-xl transition-all
+        group flex items-start gap-3 p-4 bg-white dark:bg-slate-800 border rounded-xl transition-all
         ${isDragging
-          ? 'opacity-50 ring-2 ring-blue-400 scale-[1.01] shadow-lg border-blue-300'
+          ? 'opacity-50 ring-2 ring-blue-400 scale-[1.01] shadow-lg border-blue-300 dark:border-blue-600'
           : isDragOver
-            ? 'border-t-2 border-blue-500 border-slate-200'
-            : 'border-slate-200 hover:border-blue-200 hover:shadow-sm'
+            ? 'border-t-2 border-blue-500 border-slate-200 dark:border-slate-700'
+            : 'border-slate-200 dark:border-slate-700 hover:border-blue-200 dark:hover:border-blue-700 hover:shadow-sm'
         }
       `}
     >
-      <div className="shrink-0 mt-2.5 text-slate-400 cursor-grab active:cursor-grabbing transition-colors hover:text-blue-500">
+      <div className="shrink-0 mt-2.5 text-slate-400 dark:text-slate-500 cursor-grab active:cursor-grabbing transition-colors hover:text-blue-500">
         <GripVertical size={18} />
       </div>
 
@@ -59,7 +59,7 @@ const FieldRow = ({ field, index, onUpdate, onDelete, onDragStart, onDragEnd, is
           value={field.key_name}
           onChange={(e) => onUpdate(field.id, { key_name: e.target.value })}
           placeholder="nombre-del-campo"
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-mono placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+          className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm font-mono placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
         />
 
         {field.key_type === 'richtext' ? (
@@ -68,7 +68,7 @@ const FieldRow = ({ field, index, onUpdate, onDelete, onDragStart, onDragEnd, is
             onChange={(e) => onUpdate(field.id, { key_value: e.target.value })}
             placeholder="Valor del campo..."
             rows={2}
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+            className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
           />
         ) : (
           <input
@@ -82,7 +82,7 @@ const FieldRow = ({ field, index, onUpdate, onDelete, onDragStart, onDragEnd, is
               field.key_type === 'number' ? '0' :
               'Valor del campo...'
             }
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
           />
         )}
 
@@ -90,7 +90,7 @@ const FieldRow = ({ field, index, onUpdate, onDelete, onDragStart, onDragEnd, is
           <select
             value={field.key_type}
             onChange={(e) => onUpdate(field.id, { key_type: e.target.value })}
-            className="px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all cursor-pointer"
+            className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all cursor-pointer"
           >
             {FIELD_TYPES.map((t) => (
               <option key={t.value} value={t.value}>{t.label}</option>
@@ -100,7 +100,7 @@ const FieldRow = ({ field, index, onUpdate, onDelete, onDragStart, onDragEnd, is
           <button
             type="button"
             onClick={() => onDelete(field.id)}
-            className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
             title="Eliminar campo"
           >
             <Trash2 size={18} />

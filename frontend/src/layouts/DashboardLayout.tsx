@@ -18,7 +18,7 @@ const DashboardLayout = () => {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-slate-50 font-sans text-slate-900 overflow-hidden">
+    <div className="h-screen flex flex-col bg-slate-50 dark:bg-slate-900 font-sans text-slate-900 dark:text-slate-100 overflow-hidden">
       {/* Navbar Superior */}
       <div className="shrink-0 z-20">
         <Navbar
