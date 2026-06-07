@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Key, Copy, Check, Download, AlertTriangle, Trash2, Plus, X, Loader2, BookOpen } from 'lucide-react';
+import { Key, Copy, Check, Download, AlertTriangle, Trash2, Plus, X, Loader2, BookOpen, Link2, Terminal } from 'lucide-react';
 import type { Project } from '../../context/ProjectContext';
 import { API_BASE } from '../../config';
 
@@ -24,6 +24,7 @@ const ManageApiKeysModal = ({ isOpen, onClose, project }: ManageApiKeysModalProp
   const [newKeyPlain, setNewKeyPlain] = useState('');
   const [newKeyName, setNewKeyName] = useState('');
   const [isCopied, setIsCopied] = useState(false);
+  const [urlCopied, setUrlCopied] = useState(false);
   const [keyNameInput, setKeyNameInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -59,6 +60,7 @@ const ManageApiKeysModal = ({ isOpen, onClose, project }: ManageApiKeysModalProp
       setNewKeyPlain('');
       setNewKeyName('');
       setIsCopied(false);
+      setUrlCopied(false);
       setKeyNameInput('');
       setKeyToRevoke(null);
       setError('');
@@ -175,6 +177,7 @@ const ManageApiKeysModal = ({ isOpen, onClose, project }: ManageApiKeysModalProp
     setView('list');
     setNewKeyPlain('');
     setIsCopied(false);
+    setUrlCopied(false);
   };
 
   if (!isOpen || !project) return null;
@@ -350,6 +353,49 @@ const ManageApiKeysModal = ({ isOpen, onClose, project }: ManageApiKeysModalProp
                     <><Copy size={18} /> <span className="text-sm font-medium hidden sm:inline">Copiar</span></>
                   )}
                 </button>
+              </div>
+
+              {/* URL de petición con la API key real */}
+              <div className="bg-slate-900 rounded-xl p-4 flex items-center justify-between border border-slate-800 shadow-inner">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <Link2 size={14} className="text-slate-500 shrink-0" />
+                    <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">URL de Petición</span>
+                  </div>
+                  <code className="text-emerald-400 font-mono text-xs sm:text-sm break-all select-all">
+                    GET {API_BASE}/api/v1/public/content?api_key={newKeyPlain}
+                  </code>
+                </div>
+                <button
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(`${API_BASE}/api/v1/public/content?api_key=${newKeyPlain}`);
+                      setUrlCopied(true);
+                      setTimeout(() => setUrlCopied(false), 2000);
+                    } catch {}
+                  }}
+                  className={`ml-4 p-2 rounded-lg flex items-center gap-2 shrink-0 transition-colors ${urlCopied ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'}`}
+                >
+                  {urlCopied ? (
+                    <><Check size={18} /> <span className="text-sm font-medium hidden sm:inline">Copiado</span></>
+                  ) : (
+                    <><Copy size={18} /> <span className="text-sm font-medium hidden sm:inline">Copiar URL</span></>
+                  )}
+                </button>
+              </div>
+
+              {/* Endpoint público de referencia */}
+              <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <Terminal size={14} className="text-slate-500 shrink-0" />
+                  <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Endpoint Público</span>
+                </div>
+                <code className="text-slate-300 font-mono text-xs sm:text-sm break-all">
+                  GET {API_BASE}/api/v1/public/content?api_key=TU_API_KEY
+                </code>
+                <p className="text-xs text-slate-500 mt-2">
+                  Usa esta URL en tu frontend. Reemplaza <code className="text-slate-400 font-mono text-xs">TU_API_KEY</code> por tu llave real.
+                </p>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-slate-100 dark:border-slate-700">
