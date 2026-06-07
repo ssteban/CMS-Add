@@ -159,6 +159,19 @@ async def update_profile(body: UpdateProfileRequest, user_id: int = Depends(veri
     return {"status": "success", "profile": result["profile"]}
 
 
+@router.delete("/proyects/{proyect_id}")
+async def delete_proyect(proyect_id: int, user_id: int = Depends(verify_access_token)):
+    result = proyectQuery.delete_proyect(proyect_id, user_id)
+
+    if result.get("status") == "error":
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=result.get("message")
+        )
+
+    return {"status": "success", "message": result["message"]}
+
+
 @router.post("/change-password")
 async def change_password(body: changePasswordRequest, user_id: int = Depends(verify_access_token)):
     result = AuthQuery.change_password(user_id, body.password, body.new_password)

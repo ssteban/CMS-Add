@@ -16,6 +16,7 @@ interface ProjectContextType {
   loading: boolean;
   addProject: (name: string, url: string) => Promise<void>;
   updateProject: (id: number, name: string, url: string) => Promise<void>;
+  deleteProject: (id: number) => Promise<void>;
   refreshProjects: () => Promise<void>;
 }
 
@@ -113,8 +114,24 @@ export const ProjectProvider = ({ children }: { children: ReactNode }) => {
     ));
   };
 
+  const deleteProject = async (id: number) => {
+    const token = localStorage.getItem('token');
+    const res = await fetch(`${API_BASE}/api/v1/user/proyects/${id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || data.status === 'error') {
+      throw new Error(data.detail || 'Error al eliminar el proyecto');
+    }
+
+    setProjects(prev => prev.filter(p => p.id !== id));
+  };
+
   return (
-    <ProjectContext.Provider value={{ projects, loading, addProject, updateProject, refreshProjects }}>
+    <ProjectContext.Provider value={{ projects, loading, addProject, updateProject, deleteProject, refreshProjects }}>
       {children}
     </ProjectContext.Provider>
   );

@@ -70,3 +70,18 @@ class proyectQuery:
                 }
         except Exception as e:
             return {"status": "error", "message": f"Error al actualizar proyecto: {str(e)}"}
+
+    @staticmethod
+    def delete_proyect(proyect_id, user_id):
+        try:
+            with DatabaseConnection() as cursor:
+                cursor.execute(
+                    "DELETE FROM websites WHERE id_web = %s AND id_users = %s RETURNING id_web",
+                    (proyect_id, user_id)
+                )
+                deleted = cursor.fetchone()
+                if not deleted:
+                    return {"status": "error", "message": "Proyecto no encontrado"}
+                return {"status": "success", "message": "Proyecto eliminado exitosamente"}
+        except Exception as e:
+            return {"status": "error", "message": f"Error al eliminar proyecto: {str(e)}"}
