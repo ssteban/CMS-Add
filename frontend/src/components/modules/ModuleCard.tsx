@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FolderOpen, Trash2, GripVertical, Check, X } from 'lucide-react';
+import { FolderOpen, Trash2, GripVertical, Check, X, Pencil } from 'lucide-react';
 import { GENERAL_MODULE_ID } from './moduleModel';
 import type { Module } from './moduleModel';
 
@@ -72,6 +72,13 @@ const ModuleCard = ({
       onDragOver={isGeneral ? undefined : onDragOver}
       onDrop={isGeneral ? undefined : onDrop}
       onClick={!editing ? onEnter : undefined}
+      onDoubleClick={(e) => {
+        if (editing) return;
+        if (isGeneral) return;
+        e.stopPropagation();
+        setDraftName(module.name);
+        setEditing(true);
+      }}
       className={`
         group relative bg-white dark:bg-slate-800 border rounded-xl p-5 transition-all cursor-pointer
         ${isDragging
@@ -130,10 +137,10 @@ const ModuleCard = ({
                   <button
                     type="button"
                     onClick={startEdit}
-                    className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-blue-600 transition-all shrink-0 text-xs font-medium"
+                    className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors shrink-0"
                     title="Renombrar módulo"
                   >
-                    ✎
+                    <Pencil size={16} />
                   </button>
                 )}
               </div>

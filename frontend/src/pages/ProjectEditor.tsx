@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Save, Code, Plus, CheckCircle2, Loader2, X, AlertTriangle, Play, BookOpen, FolderOpen, ChevronRight, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Save, Code, Plus, CheckCircle2, Loader2, X, AlertTriangle, Play, BookOpen, FolderOpen, ChevronRight, RefreshCw, Pencil } from 'lucide-react';
 import { useProjects } from '../context/ProjectContext';
 import { API_BASE } from '../config';
 import FieldList from '../components/fields/FieldList';
@@ -49,6 +49,8 @@ const ProjectEditor = () => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [draggedModuleIndex, setDraggedModuleIndex] = useState<number | null>(null);
   const [dragOverModuleIndex, setDragOverModuleIndex] = useState<number | null>(null);
+  const [editingModuleName, setEditingModuleName] = useState(false);
+  const [draftModuleName, setDraftModuleName] = useState('');
 
   const token = localStorage.getItem('token');
 
@@ -62,6 +64,10 @@ const ProjectEditor = () => {
     () => modules.find((m) => m.id === activeModuleId) || null,
     [modules, activeModuleId]
   );
+
+  useEffect(() => {
+    setEditingModuleName(false);
+  }, [activeModuleId]);
 
   const fieldCount = useMemo(
     () => modules.reduce((sum, m) => sum + m.fields.filter((f) => f.key_name.trim()).length, 0),
@@ -181,6 +187,25 @@ const ProjectEditor = () => {
 
   const renameModule = (moduleId: string, name: string) => {
     setModules((prev) => prev.map((m) => (m.id === moduleId ? { ...m, name } : m)));
+  };
+
+  const startEditModuleName = () => {
+    if (!activeModule || activeModule.id === GENERAL_MODULE_ID) return;
+    setDraftModuleName(activeModule.name);
+    setEditingModuleName(true);
+  };
+
+  const saveModuleName = () => {
+    if (!activeModule) return;
+    const name = draftModuleName.trim();
+    if (name && name !== activeModule.name) {
+      renameModule(activeModule.id, name);
+    }
+    setEditingModuleName(false);
+  };
+
+  const cancelEditModuleName = () => {
+    setEditingModuleName(false);
   };
 
   const deleteModule = (moduleId: string) => {
@@ -409,10 +434,60 @@ const ProjectEditor = () => {
                   Módulos
                 </button>
                 <span className="text-slate-400">/</span>
-                <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 inline-flex items-center gap-2 truncate">
-                  <FolderOpen size={22} className="text-blue-500 shrink-0" />
-                  <span className="truncate">{activeModule.name}</span>
-                </h1>
+                {editingModuleName ? (
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="text"
+                      value={draftModuleName}
+                      onChange={(e) => setDraftModuleName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') saveModuleName();
+                        if (e.key === 'Escape') cancelEditModuleName();
+                      }}
+                      onBlur={saveModuleName}
+                      autoFocus
+                      className="px-2 py-1 border border-blue-400 rounded-lg text-xl font-bold text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 w-56"
+                    />
+                    <button
+                      type="button"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={saveModuleName}
+                      className="p-1.5 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg"
+                      title="Guardar nombre"
+                    >
+                      <CheckCircle2 size={18} />
+                    </button>
+                    <button
+                      type="button"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={cancelEditModuleName}
+                      className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg"
+                      title="Cancelar"
+                    >
+                      <X size={18} />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 min-w-0">
+                    <h1
+                      onDoubleClick={startEditModuleName}
+                      className="text-2xl font-bold text-slate-900 dark:text-slate-100 inline-flex items-center gap-2 truncate cursor-text"
+                    >
+                      <FolderOpen size={22} className="text-blue-500 shrink-0" />
+                      <span className="truncate">{activeModule.name}</span>
+                    </h1>
+                    {activeModule.id !== GENERAL_MODULE_ID && (
+                      <button
+                        type="button"
+                        onClick={startEditModuleName}
+                        className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors shrink-0"
+                        title="Renombrar módulo"
+                      >
+                        <Pencil size={18} />
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             ) : (
               <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Editor: {project.name}</h1>
