@@ -7,6 +7,11 @@ export interface ComponentField {
   key_type: string;
 }
 
+export interface ModuleOption {
+  id: string;
+  name: string;
+}
+
 interface FieldRowProps {
   field: ComponentField;
   index: number;
@@ -16,6 +21,9 @@ interface FieldRowProps {
   onDragEnd: () => void;
   isDragging: boolean;
   isDragOver: boolean;
+  modules?: ModuleOption[];
+  currentModuleId?: string;
+  onMove?: (toModuleId: string) => void;
 }
 
 const FIELD_TYPES = [
@@ -27,7 +35,10 @@ const FIELD_TYPES = [
   { value: 'richtext', label: 'Texto Rico' },
 ];
 
-const FieldRow = ({ field, index, onUpdate, onDelete, onDragStart, onDragEnd, isDragging, isDragOver }: FieldRowProps) => {
+const FieldRow = ({ field, index, onUpdate, onDelete, onDragStart, onDragEnd, isDragging, isDragOver, modules, currentModuleId, onMove }: FieldRowProps) => {
+  const otherModules = modules ? modules.filter((m) => m.id !== currentModuleId) : [];
+  const canMove = Boolean(onMove && otherModules.length > 0);
+
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', String(index));
@@ -86,7 +97,7 @@ const FieldRow = ({ field, index, onUpdate, onDelete, onDragStart, onDragEnd, is
           />
         )}
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <select
             value={field.key_type}
             onChange={(e) => onUpdate(field.id, { key_type: e.target.value })}
@@ -96,6 +107,22 @@ const FieldRow = ({ field, index, onUpdate, onDelete, onDragStart, onDragEnd, is
               <option key={t.value} value={t.value}>{t.label}</option>
             ))}
           </select>
+
+          {canMove && (
+            <select
+              value=""
+              onChange={(e) => {
+                if (e.target.value) onMove!(e.target.value);
+              }}
+              className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all cursor-pointer"
+              title="Mover a módulo"
+            >
+              <option value="" disabled>Mover a…</option>
+              {otherModules.map((m) => (
+                <option key={m.id} value={m.id}>{m.name}</option>
+              ))}
+            </select>
+          )}
 
           <button
             type="button"

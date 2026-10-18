@@ -1,33 +1,28 @@
 import { useMemo } from 'react';
 import { X, Copy, Check, Code } from 'lucide-react';
 import { useState } from 'react';
-import type { ComponentField } from './FieldRow';
+import { buildPublishJson } from '../modules/moduleModel';
+import type { Module } from '../modules/moduleModel';
 
 interface JsonPreviewProps {
-  fields: ComponentField[];
+  modules: Module[];
   isOpen: boolean;
   onClose: () => void;
   projectName: string;
 }
 
-const JsonPreview = ({ fields, isOpen, onClose, projectName }: JsonPreviewProps) => {
+const JsonPreview = ({ modules, isOpen, onClose, projectName }: JsonPreviewProps) => {
   const [copied, setCopied] = useState(false);
 
-  const validFields = useMemo(() => fields.filter((f) => f.key_name.trim()), [fields]);
+  const jsonOutput = useMemo(
+    () => JSON.stringify(buildPublishJson(modules, projectName), null, 2),
+    [modules, projectName]
+  );
 
-  const jsonOutput = useMemo(() => {
-    const data = validFields.map((f) => ({
-      key: f.key_name.trim(),
-      value: f.key_value,
-      type: f.key_type,
-    }));
-    const obj = {
-      website: projectName,
-      total_fields: data.length,
-      data,
-    };
-    return JSON.stringify(obj, null, 2);
-  }, [validFields, projectName]);
+  const totalFields = useMemo(() => {
+    const parsed = JSON.parse(jsonOutput);
+    return parsed.total_fields ?? 0;
+  }, [jsonOutput]);
 
   const handleCopy = async () => {
     try {
@@ -45,8 +40,8 @@ const JsonPreview = ({ fields, isOpen, onClose, projectName }: JsonPreviewProps)
     <div className="fixed inset-0 z-50 flex justify-end">
       <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={onClose} />
 
-      <div className="relative w-full max-w-lg bg-white shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
-        <div className="flex items-center justify-between p-4 border-b border-slate-200 shrink-0">
+      <div className="relative w-full max-w-lg bg-white dark:bg-slate-800 shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
+        <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700 shrink-0">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded-lg">
               <Code size={20} />
@@ -54,7 +49,7 @@ const JsonPreview = ({ fields, isOpen, onClose, projectName }: JsonPreviewProps)
             <div>
               <h3 className="font-bold text-slate-900 dark:text-slate-100">Vista JSON</h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                {validFields.length} campo(s)
+                {totalFields} campo(s) · {modules.length} módulo(s)
               </p>
             </div>
           </div>
@@ -82,7 +77,7 @@ const JsonPreview = ({ fields, isOpen, onClose, projectName }: JsonPreviewProps)
         </div>
 
         <div className="flex-1 overflow-y-auto p-4">
-          {validFields.length === 0 ? (
+          {totalFields === 0 ? (
             <div className="text-center py-12">
               <Code size={32} className="mx-auto text-slate-300 dark:text-slate-500 mb-3" />
               <p className="text-slate-500 dark:text-slate-400 font-medium">JSON vacío</p>

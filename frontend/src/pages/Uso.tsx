@@ -31,10 +31,26 @@ function buildJsFetch(url: string): string {
   return `const API_KEY = "tu_api_key_aqui";
 const url = "${url}/api/v1/public/content?api_key=" + API_KEY;
 
-fetch(url)
-  .then(res => res.json())
-  .then(data => console.log(data))
-  .catch(err => console.error(err));`;
+// Caché local + refresco cada 5 minutos (reemplaza la caché entera)
+let contentCache = null;
+
+async function fetchContent() {
+  const res = await fetch(url);
+  contentCache = await res.json();
+  return contentCache;
+}
+
+// Carga inicial + timer de refresco
+fetchContent().then(data => console.log("content:", data));
+setInterval(fetchContent, 5 * 60 * 1000);
+
+// Uso posterior (lee de caché, sin red):
+// contentCache.data        → campos planos
+// contentCache.modules     → campos agrupados por módulo
+// contentCache.published_at
+function getModule(slug) {
+  return contentCache?.modules?.[slug]?.fields ?? [];
+}`;
 }
 
 function buildJsAxios(url: string): string {

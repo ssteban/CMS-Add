@@ -1,3 +1,7 @@
+import json
+import re
+import unicodedata
+from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.utils.auth_util import verify_access_token
 from app.models.field_model import SaveFieldsRequest
@@ -5,6 +9,12 @@ from app.db.field_query import fieldQuery
 from app.db.proyect_query import proyectQuery
 
 router = APIRouter()
+
+
+def _slugify(text: str) -> str:
+    text = unicodedata.normalize('NFKD', text).encode('ascii', 'ignore').decode('ascii')
+    text = re.sub(r'[^a-zA-Z0-9]+', '-', text).strip('-').lower()
+    return text or 'modulo'
 
 
 @router.get("/proyects/{proyect_id}/fields")
@@ -72,20 +82,40 @@ async def publish_fields(proyect_id: int, user_id: int = Depends(verify_access_t
 
     fields = fields_result.get("fields", [])
     data = []
+    modules = {}
+    current_slug = None
+
     for f in fields:
-        data.append({
-            "key": f["key_name"],
-            "value": f["key_value"],
-            "type": f["key_type"]
-        })
+        if f["key_type"] == "separator":
+            label = f["key_name"].strip() or "Módulo"
+            base = _slugify(label)
+            slug = base
+            i = 2
+            while slug in modules:
+                slug = f"{base}-{i}"
+                i += 1
+            modules[slug] = {"label": label, "fields": []}
+            current_slug = slug
+        else:
+            item = {
+                "key": f["key_name"],
+                "value": f["key_value"],
+                "type": f["key_type"]
+            }
+            data.append(item)
+            if current_slug is None:
+                modules["general"] = {"label": "General", "fields": []}
+                current_slug = "general"
+            modules[current_slug]["fields"].append(item)
 
     json_output = {
         "website": project_name,
+        "published_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "total_fields": len(data),
-        "data": data
+        "data": data,
+        "modules": modules
     }
 
-    import json
     json_str = json.dumps(json_output, ensure_ascii=False)
 
     publish_result = fieldQuery.publish_json(proyect_id, json_str)

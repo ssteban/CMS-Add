@@ -91,19 +91,40 @@ Migración extra en `backend/migration/add_published_json.sql` para agregar `pub
 
 ## JSON Publicado (estructura de salida)
 
+El editor permite organizar los campos en **módulos**. El JSON publicado expone
+tanto la lista plana (`data`, para compatibilidad) como la agrupación por módulos
+(`modules`), donde cada módulo es un slug derivado de su nombre:
+
 ```json
 {
   "website": "Nombre del Proyecto",
+  "published_at": "2026-10-18 12:00:00",
   "total_fields": 3,
   "data": [
     { "key": "titulo", "value": "Mi Web", "type": "text" },
     { "key": "logo", "value": "https://...", "type": "image" },
     { "key": "color_principal", "value": "#3b82f6", "type": "color" }
-  ]
+  ],
+  "modules": {
+    "general": {
+      "label": "General",
+      "fields": [
+        { "key": "titulo", "value": "Mi Web", "type": "text" }
+      ]
+    },
+    "hero": {
+      "label": "Hero",
+      "fields": [
+        { "key": "logo", "value": "https://...", "type": "image" },
+        { "key": "color_principal", "value": "#3b82f6", "type": "color" }
+      ]
+    }
+  }
 }
 ```
 
-Tipos de campo soportados: `text`, `image`, `link`, `color`, `number`, `richtext`.
+Tipos de campo soportados: `text`, `image`, `link`, `color`, `number`, `richtext`, `separator`.
+El tipo `separator` es interno del editor (delimita módulos) y no aparece en el JSON publicado.
 
 ---
 

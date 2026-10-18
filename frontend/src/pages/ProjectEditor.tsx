@@ -1,11 +1,30 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Save, Code, Plus, CheckCircle2, Loader2, X, AlertTriangle, Play, BookOpen } from 'lucide-react';
+import { ArrowLeft, Save, Code, Plus, CheckCircle2, Loader2, X, AlertTriangle, Play, BookOpen, FolderOpen, ChevronRight, RefreshCw } from 'lucide-react';
 import { useProjects } from '../context/ProjectContext';
 import { API_BASE } from '../config';
 import FieldList from '../components/fields/FieldList';
 import JsonPreview from '../components/fields/JsonPreview';
+import ModuleCard from '../components/modules/ModuleCard';
+import {
+  parseModules,
+  flattenModules,
+  serializeModulesForCompare,
+  buildPublishJson,
+  GENERAL_MODULE_ID,
+} from '../components/modules/moduleModel';
+import type { Module } from '../components/modules/moduleModel';
 import type { ComponentField } from '../components/fields/FieldRow';
+
+const SYNC_INTERVAL_MS = 5 * 60 * 1000;
+
+const mapServerFields = (fields: any[]): ComponentField[] =>
+  (fields || []).map((f: any) => ({
+    id: String(f.id),
+    key_name: f.key_name,
+    key_value: f.key_value,
+    key_type: f.key_type,
+  }));
 
 const ProjectEditor = () => {
   const { id } = useParams();
@@ -13,7 +32,8 @@ const ProjectEditor = () => {
 
   const project = projects.find(p => p.id === Number(id));
 
-  const [fields, setFields] = useState<ComponentField[]>([]);
+  const [modules, setModules] = useState<Module[]>([]);
+  const [activeModuleId, setActiveModuleId] = useState<string | null>(null);
   const [showJsonPreview, setShowJsonPreview] = useState(false);
   const [saved, setSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -25,22 +45,38 @@ const ProjectEditor = () => {
   const [showTestModal, setShowTestModal] = useState(false);
   const [testResultJson, setTestResultJson] = useState('');
   const [isTesting, setIsTesting] = useState(false);
+  const [showSyncBanner, setShowSyncBanner] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [draggedModuleIndex, setDraggedModuleIndex] = useState<number | null>(null);
+  const [dragOverModuleIndex, setDragOverModuleIndex] = useState<number | null>(null);
 
   const token = localStorage.getItem('token');
 
-  const publishJson = useMemo(() => {
-    const validFields = fields.filter((f) => f.key_name.trim());
-    const data = validFields.map((f) => ({
-      key: f.key_name,
-      value: f.key_value,
-      type: f.key_type,
-    }));
-    return JSON.stringify({
-      website: project?.name || 'Proyecto',
-      total_fields: data.length,
-      data,
-    }, null, 2);
-  }, [fields, project?.name]);
+  const lastServerSnapshotRef = useRef('');
+  const modulesRef = useRef(modules);
+  useEffect(() => {
+    modulesRef.current = modules;
+  }, [modules]);
+
+  const activeModule = useMemo(
+    () => modules.find((m) => m.id === activeModuleId) || null,
+    [modules, activeModuleId]
+  );
+
+  const fieldCount = useMemo(
+    () => modules.reduce((sum, m) => sum + m.fields.filter((f) => f.key_name.trim()).length, 0),
+    [modules]
+  );
+
+  const moduleOptions = useMemo(
+    () => modules.map((m) => ({ id: m.id, name: m.name })),
+    [modules]
+  );
+
+  const publishJson = useMemo(
+    () => JSON.stringify(buildPublishJson(modules, project?.name || 'Proyecto'), null, 2),
+    [modules, project?.name]
+  );
 
   useEffect(() => {
     if (!id || !token) {
@@ -56,13 +92,10 @@ const ProjectEditor = () => {
         const data = await res.json();
 
         if (res.ok && data.status === 'success') {
-          const serverFields: ComponentField[] = (data.fields || []).map((f: any) => ({
-            id: String(f.id),
-            key_name: f.key_name,
-            key_value: f.key_value,
-            key_type: f.key_type,
-          }));
-          setFields(serverFields);
+          const serverFields = mapServerFields(data.fields);
+          const parsed = parseModules(serverFields);
+          setModules(parsed);
+          lastServerSnapshotRef.current = serializeModulesForCompare(parsed);
         }
       } catch {
         // silent
@@ -74,32 +107,160 @@ const ProjectEditor = () => {
     fetchFields();
   }, [id, token]);
 
-  const fieldCount = useMemo(() => fields.filter((f) => f.key_name.trim()).length, [fields]);
+  useEffect(() => {
+    if (!id || !token) return;
 
-  const addField = () => {
+    const checkForUpdates = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/v1/user/proyects/${id}/fields`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (!res.ok || data.status !== 'success') return;
+
+        const serverFields = mapServerFields(data.fields);
+        const serverModules = parseModules(serverFields);
+        const serverSnap = serializeModulesForCompare(serverModules);
+
+        if (serverSnap === lastServerSnapshotRef.current) {
+          setShowSyncBanner(false);
+          return;
+        }
+
+        const localSnap = serializeModulesForCompare(modulesRef.current);
+        if (localSnap === lastServerSnapshotRef.current) {
+          setModules(serverModules);
+          lastServerSnapshotRef.current = serverSnap;
+          setShowSyncBanner(false);
+        } else {
+          setShowSyncBanner(true);
+        }
+      } catch {
+        // silent
+      }
+    };
+
+    const timer = setInterval(checkForUpdates, SYNC_INTERVAL_MS);
+    return () => clearInterval(timer);
+  }, [id, token]);
+
+  const handleReloadFromServer = async () => {
+    if (!id || !token) return;
+    setIsSyncing(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/user/proyects/${id}/fields`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (res.ok && data.status === 'success') {
+        const serverFields = mapServerFields(data.fields);
+        const parsed = parseModules(serverFields);
+        setModules(parsed);
+        lastServerSnapshotRef.current = serializeModulesForCompare(parsed);
+        setShowSyncBanner(false);
+        setActiveModuleId((current) =>
+          current && !parsed.some((m) => m.id === current) ? null : current
+        );
+      }
+    } catch {
+      // silent
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  const addModule = () => {
+    const newModule: Module = {
+      id: crypto.randomUUID(),
+      name: `Módulo ${modules.filter((m) => m.id !== GENERAL_MODULE_ID).length + 1}`,
+      fields: [],
+    };
+    setModules((prev) => [...prev, newModule]);
+    setActiveModuleId(newModule.id);
+  };
+
+  const renameModule = (moduleId: string, name: string) => {
+    setModules((prev) => prev.map((m) => (m.id === moduleId ? { ...m, name } : m)));
+  };
+
+  const deleteModule = (moduleId: string) => {
+    setModules((prev) => prev.filter((m) => m.id !== moduleId));
+    if (activeModuleId === moduleId) {
+      setActiveModuleId(null);
+    }
+  };
+
+  const handleModuleReorder = (fromIndex: number, toIndex: number) => {
+    setModules((prev) => {
+      if (prev[fromIndex]?.id === GENERAL_MODULE_ID || prev[toIndex]?.id === GENERAL_MODULE_ID) {
+        return prev;
+      }
+      const updated = [...prev];
+      const [moved] = updated.splice(fromIndex, 1);
+      updated.splice(toIndex, 0, moved);
+      return updated;
+    });
+  };
+
+  const handleModuleDragEnd = () => {
+    if (draggedModuleIndex !== null && dragOverModuleIndex !== null && draggedModuleIndex !== dragOverModuleIndex) {
+      handleModuleReorder(draggedModuleIndex, dragOverModuleIndex);
+    }
+    setDraggedModuleIndex(null);
+    setDragOverModuleIndex(null);
+  };
+
+  const addField = (moduleId: string) => {
     const newField: ComponentField = {
       id: crypto.randomUUID(),
       key_name: '',
       key_value: '',
       key_type: 'text',
     };
-    setFields((prev) => [...prev, newField]);
+    setModules((prev) =>
+      prev.map((m) => (m.id === moduleId ? { ...m, fields: [...m.fields, newField] } : m))
+    );
   };
 
-  const updateField = (id: string, data: Partial<ComponentField>) => {
-    setFields((prev) => prev.map((f) => (f.id === id ? { ...f, ...data } : f)));
+  const updateField = (moduleId: string, fieldId: string, data: Partial<ComponentField>) => {
+    setModules((prev) =>
+      prev.map((m) =>
+        m.id === moduleId
+          ? { ...m, fields: m.fields.map((f) => (f.id === fieldId ? { ...f, ...data } : f)) }
+          : m
+      )
+    );
   };
 
-  const deleteField = (id: string) => {
-    setFields((prev) => prev.filter((f) => f.id !== id));
+  const deleteField = (moduleId: string, fieldId: string) => {
+    setModules((prev) =>
+      prev.map((m) =>
+        m.id === moduleId ? { ...m, fields: m.fields.filter((f) => f.id !== fieldId) } : m
+      )
+    );
   };
 
-  const handleReorder = (fromIndex: number, toIndex: number) => {
-    setFields((prev) => {
-      const updated = [...prev];
-      const [moved] = updated.splice(fromIndex, 1);
-      updated.splice(toIndex, 0, moved);
-      return updated;
+  const reorderFields = (moduleId: string, fromIndex: number, toIndex: number) => {
+    setModules((prev) =>
+      prev.map((m) => {
+        if (m.id !== moduleId) return m;
+        const fields = [...m.fields];
+        const [moved] = fields.splice(fromIndex, 1);
+        fields.splice(toIndex, 0, moved);
+        return { ...m, fields };
+      })
+    );
+  };
+
+  const moveField = (fromModuleId: string, fieldId: string, toModuleId: string) => {
+    setModules((prev) => {
+      const field = prev.find((m) => m.id === fromModuleId)?.fields.find((f) => f.id === fieldId);
+      if (!field) return prev;
+      return prev.map((m) => {
+        if (m.id === fromModuleId) return { ...m, fields: m.fields.filter((f) => f.id !== fieldId) };
+        if (m.id === toModuleId) return { ...m, fields: [...m.fields, field] };
+        return m;
+      });
     });
   };
 
@@ -108,10 +269,10 @@ const ProjectEditor = () => {
     setIsSaving(true);
     setError('');
 
-    const fieldsData = fields
-      .filter((f) => f.key_name.trim())
+    const fieldsData = flattenModules(modules)
+      .filter((f) => f.key_type === 'separator' || f.key_name.trim())
       .map((f) => ({
-        key_name: f.key_name,
+        key_name: f.key_type === 'separator' ? (f.key_name.trim() || 'Módulo') : f.key_name,
         key_value: f.key_value,
         key_type: f.key_type,
       }));
@@ -132,14 +293,13 @@ const ProjectEditor = () => {
         throw new Error(data.detail || 'Error al guardar campos');
       }
 
-      const serverFields: ComponentField[] = (data.fields || []).map((f: any) => ({
-        id: String(f.id),
-        key_name: f.key_name,
-        key_value: f.key_value,
-        key_type: f.key_type,
-      }));
-
-      setFields(serverFields);
+      const serverFields = mapServerFields(data.fields);
+      const parsed = parseModules(serverFields);
+      setModules(parsed);
+      lastServerSnapshotRef.current = serializeModulesForCompare(parsed);
+      setActiveModuleId((current) =>
+        current && !parsed.some((m) => m.id === current) ? null : current
+      );
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     } catch (err: any) {
@@ -221,23 +381,43 @@ const ProjectEditor = () => {
     );
   }
 
+  const subtitle = activeModule
+    ? `${activeModule.fields.length} campo(s) en "${activeModule.name}"`
+    : modules.length > 0
+      ? `${modules.length} módulo(s) · ${fieldCount} campo(s)`
+      : 'Añade módulos para organizar el contenido';
+
   return (
     <div className="max-w-5xl mx-auto pb-12">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4 pb-4 border-b border-slate-200 dark:border-slate-700">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 min-w-0">
           <Link
             to="/dashboard/projects"
-            className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+            className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors shrink-0"
           >
             <ArrowLeft size={20} />
           </Link>
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Editor: {project.name}</h1>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
-              {fieldCount > 0
-                ? `${fieldCount} campo(s) definido(s)`
-                : 'Añade campos para construir el esquema'}
-            </p>
+          <div className="min-w-0">
+            {activeModule ? (
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => setActiveModuleId(null)}
+                  className="text-sm text-blue-600 hover:text-blue-700 font-medium inline-flex items-center gap-1"
+                >
+                  <ChevronRight size={14} className="rotate-180" />
+                  Módulos
+                </button>
+                <span className="text-slate-400">/</span>
+                <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 inline-flex items-center gap-2 truncate">
+                  <FolderOpen size={22} className="text-blue-500 shrink-0" />
+                  <span className="truncate">{activeModule.name}</span>
+                </h1>
+              </div>
+            ) : (
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Editor: {project.name}</h1>
+            )}
+            <p className="text-sm text-slate-500 dark:text-slate-400">{subtitle}</p>
           </div>
         </div>
         <div className="flex items-center gap-3 w-full sm:w-auto">
@@ -293,6 +473,22 @@ const ProjectEditor = () => {
         </div>
       </div>
 
+      {showSyncBanner && (
+        <div className="mb-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 px-4 py-3 rounded-lg flex items-center gap-3 text-sm">
+          <AlertTriangle size={18} className="shrink-0" />
+          <span className="flex-1">Este proyecto fue actualizado desde otra sesión.</span>
+          <button
+            type="button"
+            onClick={handleReloadFromServer}
+            disabled={isSyncing}
+            className="px-3 py-1.5 bg-amber-600 text-white rounded-lg font-medium hover:bg-amber-700 transition-colors inline-flex items-center gap-1.5 shrink-0 disabled:opacity-60"
+          >
+            {isSyncing ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
+            Recargar
+          </button>
+        </div>
+      )}
+
       {publishSuccess && (
         <div className="mb-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-emerald-700 px-4 py-3 rounded-lg flex items-center gap-2 text-sm">
           <CheckCircle2 size={18} className="shrink-0" />
@@ -313,27 +509,90 @@ const ProjectEditor = () => {
         </div>
       )}
 
-      <div className="mb-6">
-        <button
-          type="button"
-          onClick={addField}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm inline-flex items-center gap-2"
-        >
-          <Plus size={18} />
-          Añadir Campo
-        </button>
-      </div>
+      {!activeModule ? (
+        <div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {modules.map((m, index) => (
+              <ModuleCard
+                key={m.id}
+                module={m}
+                onEnter={() => setActiveModuleId(m.id)}
+                onRename={(name) => renameModule(m.id, name)}
+                onDelete={() => deleteModule(m.id)}
+                onDragStart={() => setDraggedModuleIndex(index)}
+                onDragEnd={handleModuleDragEnd}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  if (draggedModuleIndex !== null && draggedModuleIndex !== index) {
+                    setDragOverModuleIndex(index);
+                  }
+                }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  if (draggedModuleIndex !== null && draggedModuleIndex !== index) {
+                    handleModuleReorder(draggedModuleIndex, index);
+                  }
+                  setDraggedModuleIndex(null);
+                  setDragOverModuleIndex(null);
+                }}
+                isDragging={draggedModuleIndex === index}
+                isDragOver={dragOverModuleIndex === index}
+              />
+            ))}
+            <button
+              type="button"
+              onClick={addModule}
+              className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-5 text-slate-500 dark:text-slate-400 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50/50 dark:hover:bg-blue-900/20 transition-all flex flex-col items-center justify-center gap-2 min-h-[140px] font-medium"
+            >
+              <Plus size={24} />
+              Añadir Módulo
+            </button>
+          </div>
+          {modules.length === 0 && (
+            <p className="text-center text-sm text-slate-400 dark:text-slate-500 mt-6">
+              Los campos sueltos sin módulo aparecerán en "General".
+            </p>
+          )}
+        </div>
+      ) : (
+        <div>
+          <div className="mb-6">
+            <button
+              type="button"
+              onClick={() => setActiveModuleId(null)}
+              className="px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 font-medium transition-colors inline-flex items-center gap-2"
+            >
+              <ArrowLeft size={16} />
+              Volver a Módulos
+            </button>
+          </div>
 
-      <FieldList
-        fields={fields}
-        onUpdate={updateField}
-        onDelete={deleteField}
-        onAdd={addField}
-        onReorder={handleReorder}
-      />
+          <div className="mb-6">
+            <button
+              type="button"
+              onClick={() => addField(activeModule.id)}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm inline-flex items-center gap-2"
+            >
+              <Plus size={18} />
+              Añadir Campo
+            </button>
+          </div>
+
+          <FieldList
+            fields={activeModule.fields}
+            onUpdate={(fieldId, data) => updateField(activeModule.id, fieldId, data)}
+            onDelete={(fieldId) => deleteField(activeModule.id, fieldId)}
+            onAdd={() => addField(activeModule.id)}
+            onReorder={(from, to) => reorderFields(activeModule.id, from, to)}
+            modules={moduleOptions}
+            currentModuleId={activeModule.id}
+            onMove={(fieldId, toModuleId) => moveField(activeModule.id, fieldId, toModuleId)}
+          />
+        </div>
+      )}
 
       <JsonPreview
-        fields={fields}
+        modules={modules}
         isOpen={showJsonPreview}
         onClose={() => setShowJsonPreview(false)}
         projectName={project.name}

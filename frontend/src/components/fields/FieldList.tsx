@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { Plus } from 'lucide-react';
 import FieldRow from './FieldRow';
-import type { ComponentField } from './FieldRow';
+import type { ComponentField, ModuleOption } from './FieldRow';
 
 interface FieldListProps {
   fields: ComponentField[];
@@ -9,9 +9,12 @@ interface FieldListProps {
   onDelete: (id: string) => void;
   onAdd: () => void;
   onReorder: (fromIndex: number, toIndex: number) => void;
+  modules?: ModuleOption[];
+  currentModuleId?: string;
+  onMove?: (fieldId: string, toModuleId: string) => void;
 }
 
-const FieldList = ({ fields, onUpdate, onDelete, onAdd, onReorder }: FieldListProps) => {
+const FieldList = ({ fields, onUpdate, onDelete, onAdd, onReorder, modules, currentModuleId, onMove }: FieldListProps) => {
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
@@ -85,6 +88,9 @@ const FieldList = ({ fields, onUpdate, onDelete, onAdd, onReorder }: FieldListPr
                 onDragEnd={handleDragEnd}
                 isDragging={draggedIndex === index}
                 isDragOver={dragOverIndex === index}
+                modules={modules}
+                currentModuleId={currentModuleId}
+                onMove={onMove ? (toModuleId) => onMove(field.id, toModuleId) : undefined}
               />
             </div>
           ))}

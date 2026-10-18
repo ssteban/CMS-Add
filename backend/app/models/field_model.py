@@ -1,10 +1,13 @@
+from typing import Literal
 from pydantic import BaseModel
+
+FieldType = Literal['text', 'image', 'link', 'color', 'number', 'richtext', 'separator']
 
 
 class FieldItem(BaseModel):
     key_name: str
     key_value: str
-    key_type: str
+    key_type: FieldType
 
 
 class SaveFieldsRequest(BaseModel):
