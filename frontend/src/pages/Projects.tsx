@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FolderKanban, Plus, ExternalLink, Key, Trash2, AlertTriangle, Loader2 } from 'lucide-react';
+import { FolderKanban, Plus, ExternalLink, Key, Trash2, AlertTriangle, Loader2, Users, Share2 } from 'lucide-react';
 import { useProjects } from '../context/ProjectContext';
 import type { Project } from '../context/ProjectContext';
 import CreateProjectModal from '../components/modals/CreateProjectModal';
 import ManageApiKeysModal from '../components/modals/ManageApiKeysModal';
+import ShareProjectModal from '../components/modals/ShareProjectModal';
 
 const Projects = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -12,6 +13,10 @@ const Projects = () => {
   // Estado para el modal de API Keys
   const [isApiModalOpen, setIsApiModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+
+  // Estado para el modal de compartir
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [projectToShare, setProjectToShare] = useState<Project | null>(null);
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
@@ -29,6 +34,11 @@ const Projects = () => {
     setProjectToDelete(project);
     setIsDeleteModalOpen(true);
     setDeleteError('');
+  };
+
+  const handleShareClick = (project: Project) => {
+    setProjectToShare(project);
+    setIsShareModalOpen(true);
   };
 
   const handleConfirmDelete = async () => {
@@ -94,16 +104,24 @@ const Projects = () => {
                   <FolderKanban size={24} />
                 </div>
                 <div className="flex items-center gap-2">
+                  {project.shared && (
+                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-900/40 border border-indigo-200 dark:border-indigo-800 px-2 py-1 rounded">
+                      <Users size={12} />
+                      Compartido
+                    </span>
+                  )}
                   <span className="text-xs font-medium text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">
                     {project.createdAt}
                   </span>
-                  <button
-                    onClick={() => handleDeleteClick(project)}
-                    className="p-1.5 text-slate-400 dark:text-slate-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                    title="Eliminar proyecto"
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                  {!project.shared && (
+                    <button
+                      onClick={() => handleDeleteClick(project)}
+                      className="p-1.5 text-slate-400 dark:text-slate-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                      title="Eliminar proyecto"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  )}
                 </div>
               </div>
               <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-1 group-hover:text-blue-600 transition-colors">
@@ -118,30 +136,59 @@ const Projects = () => {
                 {project.url}
                 <ExternalLink size={12} />
               </a>
-              <div className="flex flex-col sm:flex-row gap-2 mt-auto pt-4 border-t border-slate-100 dark:border-slate-700">
-                <Link 
-                  to={`/dashboard/projects/${project.id}/editor`}
-                  className="w-full sm:flex-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 py-2.5 rounded-lg text-sm font-bold text-center hover:bg-blue-100 dark:hover:bg-blue-800/40 transition-colors"
-                >
-                  Editar Contenido
-                </Link>
-                <a
-                  href={project.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full sm:flex-1 bg-green-50 dark:bg-green-900/30 text-green-700 py-2.5 rounded-lg text-sm font-bold text-center hover:bg-green-100 dark:hover:bg-green-800/40 transition-colors flex items-center justify-center gap-1.5"
-                >
-                  <ExternalLink size={16} />
-                  Ver Web
-                </a>
-                <button 
-                  onClick={() => handleOpenApiModal(project)}
-                  className="w-full sm:flex-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors flex items-center justify-center gap-1.5"
-                >
-                  <Key size={16} />
-                  Credenciales
-                </button>
-              </div>
+                {!project.shared && (
+                  <div className="flex flex-col sm:flex-row gap-2 mt-auto pt-4 border-t border-slate-100 dark:border-slate-700">
+                    <Link 
+                      to={`/dashboard/projects/${project.id}/editor`}
+                      className="w-full sm:flex-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 py-2.5 rounded-lg text-sm font-bold text-center hover:bg-blue-100 dark:hover:bg-blue-800/40 transition-colors"
+                    >
+                      Editar Contenido
+                    </Link>
+                    <a
+                      href={project.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full sm:flex-1 bg-green-50 dark:bg-green-900/30 text-green-700 py-2.5 rounded-lg text-sm font-bold text-center hover:bg-green-100 dark:hover:bg-green-800/40 transition-colors flex items-center justify-center gap-1.5"
+                    >
+                      <ExternalLink size={16} />
+                      Ver Web
+                    </a>
+                    <button 
+                      onClick={() => handleOpenApiModal(project)}
+                      className="w-full sm:flex-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors flex items-center justify-center gap-1.5"
+                    >
+                      <Key size={16} />
+                      Credenciales
+                    </button>
+                    <button
+                      onClick={() => handleShareClick(project)}
+                      className="w-full sm:flex-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 py-2.5 rounded-lg text-sm font-medium hover:bg-indigo-100 dark:hover:bg-indigo-800/40 transition-colors flex items-center justify-center gap-1.5"
+                      title="Compartir este proyecto"
+                    >
+                      <Share2 size={16} />
+                      Compartir
+                    </button>
+                  </div>
+                )}
+                {project.shared && (
+                  <div className="flex flex-col sm:flex-row gap-2 mt-auto pt-4 border-t border-slate-100 dark:border-slate-700">
+                    <Link 
+                      to={`/dashboard/projects/${project.id}/editor`}
+                      className="w-full sm:flex-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 py-2.5 rounded-lg text-sm font-bold text-center hover:bg-blue-100 dark:hover:bg-blue-800/40 transition-colors"
+                    >
+                      Editar Contenido
+                    </Link>
+                    <a
+                      href={project.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full sm:flex-1 bg-green-50 dark:bg-green-900/30 text-green-700 py-2.5 rounded-lg text-sm font-bold text-center hover:bg-green-100 dark:hover:bg-green-800/40 transition-colors flex items-center justify-center gap-1.5"
+                    >
+                      <ExternalLink size={16} />
+                      Ver Web
+                    </a>
+                  </div>
+                )}
             </div>
           ))}
         </div>
@@ -158,6 +205,15 @@ const Projects = () => {
         isOpen={isApiModalOpen}
         onClose={() => setIsApiModalOpen(false)}
         project={selectedProject}
+      />
+
+      <ShareProjectModal
+        isOpen={isShareModalOpen}
+        onClose={() => {
+          setIsShareModalOpen(false);
+          setProjectToShare(null);
+        }}
+        project={projectToShare}
       />
 
       {/* Modal de confirmación de eliminación */}

@@ -50,6 +50,16 @@ api_keys (id_key, id_web FK, key_name, api_key_hash UNIQUE, created_at, last_use
 components (id_components, id_web FK, key_name, key_label, key_value, key_type, created_at, update_at)
 ```
 
+2 tablas adicionales en `backend/migration/share_access.sql` (compartir proyectos):
+
+```sql
+-- Miembros con acceso de edición a proyectos de otros usuarios
+project_members (id_members, id_web FK, id_users FK, created_at, UNIQUE(id_web, id_users))
+
+-- Invitaciones pendientes / respondidas (notificaciones)
+project_invitations (id_invitation, id_web FK, id_inviter FK, id_invitee FK, status, created_at, UNIQUE(id_web, id_invitee))
+```
+
 Migración extra en `backend/migration/add_published_json.sql` para agregar `published_json` a proyectos existentes.
 
 ---
@@ -86,6 +96,31 @@ Migración extra en `backend/migration/add_published_json.sql` para agregar `pub
 | GET | `/api/v1/user/profile` | Obtener perfil del usuario |
 | PUT | `/api/v1/user/profile` | Actualizar perfil (`username`, `email`) |
 | POST | `/api/v1/user/change-password` | Cambiar contraseña |
+| POST | `/api/v1/user/proyects/{id}/share` | Invitar a un usuario por `email` (solo el dueño) |
+| GET | `/api/v1/user/notifications` | Invitaciones pendientes del usuario |
+| POST | `/api/v1/user/notifications/{id}/accept` | Aceptar invitación (da acceso de edición) |
+| POST | `/api/v1/user/notifications/{id}/decline` | Rechazar invitación |
+
+**Permisos:** los endpoints de campos/publicación aceptan al dueño **y** a los
+miembros (`project_members`). Las API Keys, editar/eliminar el proyecto y
+compartir son exclusivos del dueño.
+
+---
+
+## Compartir Proyectos
+
+El dueño de un proyecto puede invitar a otro usuario (por email registrado) a
+**editar el contenido** de ese proyecto:
+
+1. En *Mis Proyectos*, el dueño pulsa **Compartir** y envía una invitación.
+2. El invitado recibe una notificación en la campana del navbar con
+   **Aceptar** / **Rechazar**.
+3. Al aceptar, el proyecto aparece en la lista del invitado con el badge
+   **Compartido** y puede editar/guardar/publicar su contenido.
+
+Restricciones para usuarios compartidos: no pueden eliminar el proyecto,
+gestionar credenciales API, editarlo (nombre/URL) ni compartirlo. Rechazar una
+invitación permite volver a recibir la misma invitación después.
 
 ---
 

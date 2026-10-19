@@ -9,6 +9,7 @@ export interface Project {
   url: string;
   createdAt: string;
   updatedAt: string;
+  shared: boolean;
 }
 
 interface ProjectContextType {
@@ -47,7 +48,8 @@ export const ProjectProvider = ({ children }: { children: ReactNode }) => {
           name: p.name,
           url: p.url,
           createdAt: p.created_at,
-          updatedAt: p.updated_at
+          updatedAt: p.updated_at,
+          shared: !!p.shared
         })));
       }
     } catch {
@@ -84,7 +86,8 @@ export const ProjectProvider = ({ children }: { children: ReactNode }) => {
       name: p.name,
       url: p.url,
       createdAt: p.created_at,
-      updatedAt: p.updated_at
+      updatedAt: p.updated_at,
+      shared: false
     };
     setProjects(prev => [newProject, ...prev]);
   };

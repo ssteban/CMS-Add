@@ -98,3 +98,24 @@ class fieldQuery:
                 return row is not None
         except Exception:
             return False
+
+    @staticmethod
+    def verify_project_access(proyect_id, user_id):
+        try:
+            with DatabaseConnection() as cursor:
+                cursor.execute(
+                    """SELECT id_web FROM websites
+                       WHERE id_web = %s
+                         AND (
+                             id_users = %s
+                             OR EXISTS (
+                                 SELECT 1 FROM project_members
+                                 WHERE id_web = %s AND id_users = %s
+                             )
+                         )""",
+                    (proyect_id, user_id, proyect_id, user_id)
+                )
+                row = cursor.fetchone()
+                return row is not None
+        except Exception:
+            return False

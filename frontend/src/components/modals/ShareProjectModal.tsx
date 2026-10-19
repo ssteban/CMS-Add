@@ -1,0 +1,147 @@
+import { useState } from 'react';
+import { Loader2, Users, Mail } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { API_BASE } from '../../config';
+import type { Project } from '../../context/ProjectContext';
+
+interface ShareProjectModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  project: Project | null;
+}
+
+const ShareProjectModal = ({ isOpen, onClose, project }: ShareProjectModalProps) => {
+  const { token } = useAuth();
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  if (!isOpen || !project) return null;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) return;
+
+    setIsSubmitting(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/user/proyects/${project.id}/share`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ email: email.trim() })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || data.status === 'error') {
+        throw new Error(typeof data.detail === 'string' ? data.detail : 'Error al enviar la invitación');
+      }
+
+      setSuccess(data.message || 'Invitación enviada');
+      setEmail('');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error desconocido');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleClose = () => {
+    if (isSubmitting) return;
+    setEmail('');
+    setError('');
+    setSuccess('');
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm transition-opacity px-4">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl max-w-md w-full overflow-hidden animate-in fade-in zoom-in duration-200">
+        <div className="p-6">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded-lg">
+              <Users size={20} />
+            </div>
+            <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">Compartir Proyecto</h3>
+          </div>
+          <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">
+            Invita a otro usuario por email a editar el contenido de{' '}
+            <strong className="text-slate-700 dark:text-slate-300">{project.name}</strong>.
+            Solo podrá editar contenido: no podrá eliminar el proyecto ni ver credenciales.
+          </p>
+
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 rounded-lg text-sm">
+              {error}
+            </div>
+          )}
+
+          {success && (
+            <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 rounded-lg text-sm">
+              {success}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="shareEmail" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                Email del usuario
+              </label>
+              <div className="mt-1 relative">
+                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                  <Mail size={16} />
+                </span>
+                <input
+                  id="shareEmail"
+                  type="email"
+                  required
+                  disabled={isSubmitting}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="appearance-none block w-full pl-9 pr-3 py-2.5 border border-slate-300 dark:border-slate-600 rounded-lg shadow-sm placeholder-slate-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  placeholder="Ej: usuario@ejemplo.com"
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 pt-4">
+              <button
+                type="button"
+                disabled={isSubmitting}
+                onClick={handleClose}
+                className="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Cerrar
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" />
+                    Enviando...
+                  </>
+                ) : (
+                  <>
+                    <Users size={18} />
+                    Enviar invitación
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ShareProjectModal;

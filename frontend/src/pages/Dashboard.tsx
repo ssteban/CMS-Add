@@ -1,4 +1,4 @@
-import { Globe, FileText, LayoutDashboard, ArrowRight } from 'lucide-react';
+import { Globe, FileText, LayoutDashboard, ArrowRight, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useProjects } from '../context/ProjectContext';
 
@@ -70,7 +70,15 @@ const Dashboard = () => {
               {projects.slice(0, 3).map((project) => (
                 <li key={project.id} className="py-4 flex justify-between items-center group">
                   <div>
-                    <p className="font-bold text-slate-900 dark:text-slate-100">{project.name}</p>
+                    <p className="font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                      {project.name}
+                      {project.shared && (
+                        <span className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-900/40 border border-indigo-200 dark:border-indigo-800 px-1.5 py-0.5 rounded">
+                          <Users size={11} />
+                          Compartido
+                        </span>
+                      )}
+                    </p>
                     <p className="text-sm text-slate-500 dark:text-slate-400">Creado el {project.createdAt}</p>
                   </div>
                   <Link 

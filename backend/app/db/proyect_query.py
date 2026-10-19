@@ -30,8 +30,15 @@ class proyectQuery:
         try:
             with DatabaseConnection() as cursor:
                 cursor.execute(
-                    "SELECT id_web, name, url, created_at, update_at FROM websites WHERE id_users = %s ORDER BY created_at DESC",
-                    (user_id,)
+                    """SELECT id_web, name, url, created_at, update_at, false AS shared
+                       FROM websites WHERE id_users = %s
+                       UNION ALL
+                       SELECT w.id_web, w.name, w.url, w.created_at, w.update_at, true AS shared
+                       FROM websites w
+                       JOIN project_members m ON m.id_web = w.id_web
+                       WHERE m.id_users = %s
+                       ORDER BY created_at DESC""",
+                    (user_id, user_id)
                 )
                 rows = cursor.fetchall()
                 proyects = []
@@ -41,7 +48,8 @@ class proyectQuery:
                         "name": row[1],
                         "url": row[2],
                         "created_at": row[3].strftime("%Y-%m-%d %H:%M:%S"),
-                        "updated_at": row[4].strftime("%Y-%m-%d %H:%M:%S")
+                        "updated_at": row[4].strftime("%Y-%m-%d %H:%M:%S"),
+                        "shared": row[5]
                     })
                 return {"status": "success", "proyects": proyects}
         except Exception as e:

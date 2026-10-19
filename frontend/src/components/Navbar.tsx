@@ -1,12 +1,91 @@
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, BookOpen, Code } from 'lucide-react';
+import { Menu, BookOpen, Code, Bell, Check, X } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { useProjects } from '../context/ProjectContext';
+import { API_BASE } from '../config';
 
 interface NavbarProps {
   isAuthenticated?: boolean;
   onMenuToggle?: () => void;
 }
 
+interface Notification {
+  id: number;
+  created_at: string;
+  project_id: number;
+  project_name: string;
+  inviter: string;
+}
+
 const Navbar = ({ isAuthenticated = false, onMenuToggle }: NavbarProps) => {
+  const { token } = useAuth();
+  const { refreshProjects } = useProjects();
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [respondingId, setRespondingId] = useState<number | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const fetchNotifications = useCallback(async () => {
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_BASE}/api/v1/user/notifications`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (res.ok && data.status === 'success') {
+        setNotifications(data.notifications || []);
+      }
+    } catch {
+      // silently fail
+    }
+  }, [token]);
+
+  useEffect(() => {
+    if (!isAuthenticated || !token) {
+      setNotifications([]);
+      return;
+    }
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 30000);
+    return () => clearInterval(interval);
+  }, [isAuthenticated, token, fetchNotifications]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen]);
+
+  const handleRespond = async (notification: Notification, accept: boolean) => {
+    if (!token) return;
+    setRespondingId(notification.id);
+    try {
+      const res = await fetch(
+        `${API_BASE}/api/v1/user/notifications/${notification.id}/${accept ? 'accept' : 'decline'}`,
+        {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` }
+        }
+      );
+      if (res.ok) {
+        setNotifications(prev => prev.filter(n => n.id !== notification.id));
+        if (accept) {
+          await refreshProjects();
+        }
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setRespondingId(null);
+    }
+  };
+
   return (
     <nav className="bg-slate-900 text-white w-full border-b border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -26,6 +105,66 @@ const Navbar = ({ isAuthenticated = false, onMenuToggle }: NavbarProps) => {
             </div>
           </div>
           <div className="flex items-center space-x-4">
+            {isAuthenticated && (
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setIsOpen(prev => !prev)}
+                  className="relative p-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
+                  aria-label="Notificaciones"
+                >
+                  <Bell size={20} />
+                  {notifications.length > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-xs font-bold min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center">
+                      {notifications.length}
+                    </span>
+                  )}
+                </button>
+
+                {isOpen && (
+                  <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                    <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">
+                      <p className="text-sm font-bold text-slate-900 dark:text-slate-100">Notificaciones</p>
+                    </div>
+
+                    {notifications.length === 0 ? (
+                      <div className="px-4 py-8 text-center">
+                        <Bell size={24} className="mx-auto text-slate-300 dark:text-slate-600 mb-2" />
+                        <p className="text-sm text-slate-500 dark:text-slate-400">No tienes notificaciones nuevas</p>
+                      </div>
+                    ) : (
+                      <ul className="max-h-80 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700">
+                        {notifications.map((n) => (
+                          <li key={n.id} className="px-4 py-3">
+                            <p className="text-sm text-slate-700 dark:text-slate-300">
+                              <strong className="text-slate-900 dark:text-slate-100">{n.inviter}</strong> te invitó a
+                              editar <strong className="text-slate-900 dark:text-slate-100">{n.project_name}</strong>
+                            </p>
+                            <div className="flex gap-2 mt-2">
+                              <button
+                                onClick={() => handleRespond(n, true)}
+                                disabled={respondingId === n.id}
+                                className="flex-1 inline-flex items-center justify-center gap-1 bg-green-600 hover:bg-green-700 text-white text-xs font-semibold py-1.5 px-2 rounded-lg transition-colors disabled:opacity-50"
+                              >
+                                <Check size={14} />
+                                Aceptar
+                              </button>
+                              <button
+                                onClick={() => handleRespond(n, false)}
+                                disabled={respondingId === n.id}
+                                className="flex-1 inline-flex items-center justify-center gap-1 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 text-xs font-semibold py-1.5 px-2 rounded-lg transition-colors disabled:opacity-50"
+                              >
+                                <X size={14} />
+                                Rechazar
+                              </button>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
             <a
               href="https://github.com/ssteban/CMS-Add"
               target="_blank"

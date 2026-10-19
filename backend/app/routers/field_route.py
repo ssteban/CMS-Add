@@ -19,7 +19,7 @@ def _slugify(text: str) -> str:
 
 @router.get("/proyects/{proyect_id}/fields")
 async def get_fields(proyect_id: int, user_id: int = Depends(verify_access_token)):
-    if not fieldQuery.verify_project_ownership(proyect_id, user_id):
+    if not fieldQuery.verify_project_access(proyect_id, user_id):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Proyecto no encontrado"
@@ -38,7 +38,7 @@ async def get_fields(proyect_id: int, user_id: int = Depends(verify_access_token
 
 @router.put("/proyects/{proyect_id}/fields")
 async def save_fields(proyect_id: int, body: SaveFieldsRequest, user_id: int = Depends(verify_access_token)):
-    if not fieldQuery.verify_project_ownership(proyect_id, user_id):
+    if not fieldQuery.verify_project_access(proyect_id, user_id):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Proyecto no encontrado"
@@ -58,7 +58,7 @@ async def save_fields(proyect_id: int, body: SaveFieldsRequest, user_id: int = D
 
 @router.post("/proyects/{proyect_id}/publish")
 async def publish_fields(proyect_id: int, user_id: int = Depends(verify_access_token)):
-    if not fieldQuery.verify_project_ownership(proyect_id, user_id):
+    if not fieldQuery.verify_project_access(proyect_id, user_id):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Proyecto no encontrado"
@@ -132,7 +132,7 @@ async def publish_fields(proyect_id: int, user_id: int = Depends(verify_access_t
 
 @router.get("/proyects/{proyect_id}/published-json")
 async def get_published_json(proyect_id: int, user_id: int = Depends(verify_access_token)):
-    if not fieldQuery.verify_project_ownership(proyect_id, user_id):
+    if not fieldQuery.verify_project_access(proyect_id, user_id):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Proyecto no encontrado"
