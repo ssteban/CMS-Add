@@ -114,7 +114,6 @@ async def publish_fields(proyect_id: int, user_id: int = Depends(verify_access_t
         "schema_version": 1,
         "published_at": datetime.now().isoformat(timespec="seconds"),
         "total_fields": len(data),
-        "data": data,
         "modules": modules
     }
 
