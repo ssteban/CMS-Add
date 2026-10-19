@@ -99,6 +99,7 @@ async def publish_fields(proyect_id: int, user_id: int = Depends(verify_access_t
         else:
             item = {
                 "key": f["key_name"],
+                "label": (f.get("key_label") or "").strip() or f["key_name"],
                 "value": f["key_value"],
                 "type": f["key_type"]
             }
@@ -110,7 +111,8 @@ async def publish_fields(proyect_id: int, user_id: int = Depends(verify_access_t
 
     json_output = {
         "website": project_name,
-        "published_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "schema_version": 1,
+        "published_at": datetime.now().isoformat(timespec="seconds"),
         "total_fields": len(data),
         "data": data,
         "modules": modules

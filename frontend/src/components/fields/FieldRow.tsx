@@ -1,8 +1,9 @@
-import { Trash2, GripVertical } from 'lucide-react';
+import { Trash2, GripVertical, TriangleAlert } from 'lucide-react';
 
 export interface ComponentField {
   id: string;
   key_name: string;
+  key_label: string;
   key_value: string;
   key_type: string;
 }
@@ -38,6 +39,8 @@ const FIELD_TYPES = [
 const FieldRow = ({ field, index, onUpdate, onDelete, onDragStart, onDragEnd, isDragging, isDragOver, modules, currentModuleId, onMove }: FieldRowProps) => {
   const otherModules = modules ? modules.filter((m) => m.id !== currentModuleId) : [];
   const canMove = Boolean(onMove && otherModules.length > 0);
+  const hasLabel = field.key_label.trim().length > 0;
+  const keyLooksGeneric = field.key_name.trim().length > 0 && !/^[a-z][a-z0-9_-]*$/.test(field.key_name.trim());
 
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
     e.dataTransfer.effectAllowed = 'move';
@@ -64,13 +67,31 @@ const FieldRow = ({ field, index, onUpdate, onDelete, onDragStart, onDragEnd, is
         <GripVertical size={18} />
       </div>
 
-      <div className="flex-1 grid grid-cols-1 md:grid-cols-[1fr_1.5fr_auto] gap-3 items-start">
+      <div className="flex-1 grid grid-cols-1 md:grid-cols-[1fr_1fr_1.5fr_auto] gap-3 items-start">
+        <div className="relative">
+          <input
+            type="text"
+            value={field.key_name}
+            onChange={(e) => onUpdate(field.id, { key_name: e.target.value })}
+            placeholder="nombre-del-campo"
+            className="w-full px-3 py-2 pr-8 border border-slate-300 dark:border-slate-600 rounded-lg text-sm font-mono placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+          />
+          {keyLooksGeneric && (
+            <span
+              className="absolute right-2.5 top-2.5 text-amber-500"
+              title="Clave poco descriptiva (ej: txt-titulo, img-hero)"
+            >
+              <TriangleAlert size={16} />
+            </span>
+          )}
+        </div>
+
         <input
           type="text"
-          value={field.key_name}
-          onChange={(e) => onUpdate(field.id, { key_name: e.target.value })}
-          placeholder="nombre-del-campo"
-          className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm font-mono placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+          value={field.key_label}
+          onChange={(e) => onUpdate(field.id, { key_label: e.target.value })}
+          placeholder={hasLabel ? 'Etiqueta visible' : 'Etiqueta (opcional)'}
+          className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
         />
 
         {field.key_type === 'richtext' ? (

@@ -117,31 +117,43 @@ print(data)`,
           <div className="space-y-4 text-slate-600 dark:text-slate-400 leading-relaxed">
             <p>
               El endpoint público devuelve un objeto JSON con la siguiente estructura. Todos los campos que hayas
-              definido en el editor aparecerán dentro del array <code className="text-blue-600 bg-blue-50 dark:bg-blue-900/30 px-1.5 py-0.5 rounded text-sm font-mono">data</code>.
+              definido en el editor aparecen dentro del array <code className="text-blue-600 bg-blue-50 dark:bg-blue-900/30 px-1.5 py-0.5 rounded text-sm font-mono">data</code>
+              y, agrupados por módulo, dentro de <code className="text-blue-600 bg-blue-50 dark:bg-blue-900/30 px-1.5 py-0.5 rounded text-sm font-mono">modules</code>.
             </p>
 
             <div className="relative">
               <pre className="bg-slate-900 text-slate-100 rounded-xl p-5 text-sm font-mono leading-relaxed overflow-x-auto">
                 <code>{`{
   "website": "nombre-del-proyecto",
+  "schema_version": 1,
+  "published_at": "2026-10-18T23:17:37",
   "total_fields": 3,
   "data": [
     {
       "key": "hero_title",
+      "label": "Título principal",
       "value": "Bienvenido a mi sitio",
       "type": "text"
     },
     {
       "key": "hero_image",
+      "label": "Imagen hero",
       "value": "https://ejemplo.com/foto.jpg",
       "type": "image"
     },
     {
       "key": "cta_link",
+      "label": "",
       "value": "https://ejemplo.com/contacto",
       "type": "link"
     }
-  ]
+  ],
+  "modules": {
+    "general": {
+      "label": "General",
+      "fields": [ ...mismos campos que data, agrupados... ]
+    }
+  }
 }`}</code>
               </pre>
             </div>
@@ -152,12 +164,24 @@ print(data)`,
                 <p className="text-xs text-slate-500 dark:text-slate-400">Nombre del proyecto. Identificador del sitio al que pertenece el contenido.</p>
               </div>
               <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-4">
+                <p className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-1">schema_version</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Versión de la forma del JSON (actualmente 1). Útil para detectar cambios futuros.</p>
+              </div>
+              <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-4">
+                <p className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-1">published_at</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Fecha y hora de publicación en formato ISO 8601 (local, sin zona horaria).</p>
+              </div>
+              <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-4">
                 <p className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-1">total_fields</p>
                 <p className="text-xs text-slate-500 dark:text-slate-400">Número total de campos definidos en este proyecto.</p>
               </div>
               <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-4">
                 <p className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-1">data[]</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Array con todos los campos. Cada uno tiene key, value y type.</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Array con todos los campos. Cada uno tiene key, label, value y type.</p>
+              </div>
+              <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-4">
+                <p className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-1">modules{}`{}`</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Campos agrupados por módulo (slug → label + fields).</p>
               </div>
             </div>
           </div>

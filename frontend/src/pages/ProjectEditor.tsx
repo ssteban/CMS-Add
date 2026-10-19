@@ -22,6 +22,7 @@ const mapServerFields = (fields: any[]): ComponentField[] =>
   (fields || []).map((f: any) => ({
     id: String(f.id),
     key_name: f.key_name,
+    key_label: f.key_label ?? '',
     key_value: f.key_value,
     key_type: f.key_type,
   }));
@@ -239,6 +240,7 @@ const ProjectEditor = () => {
     const newField: ComponentField = {
       id: crypto.randomUUID(),
       key_name: '',
+      key_label: '',
       key_value: '',
       key_type: 'text',
     };
@@ -298,6 +300,7 @@ const ProjectEditor = () => {
       .filter((f) => f.key_type === 'separator' || f.key_name.trim())
       .map((f) => ({
         key_name: f.key_type === 'separator' ? (f.key_name.trim() || 'Módulo') : f.key_name,
+        key_label: f.key_label ?? '',
         key_value: f.key_value,
         key_type: f.key_type,
       }));

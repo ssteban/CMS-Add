@@ -37,6 +37,7 @@ CREATE TABLE components (
     id_components SERIAL PRIMARY KEY,
     id_web INT NOT NULL,
     key_name VARCHAR(255) NOT NULL,
+    key_label VARCHAR(255), -- Etiqueta legible en el editor (fallback: key_name)
     key_value TEXT,
     key_type VARCHAR(100), -- Ej: 'text', 'image'
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

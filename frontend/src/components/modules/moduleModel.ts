@@ -36,7 +36,7 @@ export function flattenModules(modules: Module[]): ComponentField[] {
   }
   for (const m of modules) {
     if (m.id === GENERAL_MODULE_ID) continue;
-    out.push({ id: m.id, key_name: m.name, key_value: '', key_type: 'separator' });
+    out.push({ id: m.id, key_name: m.name, key_label: '', key_value: '', key_type: 'separator' });
     out.push(...m.fields);
   }
   return out;
@@ -47,8 +47,8 @@ export function serializeModulesForCompare(modules: Module[]): string {
     modules.flatMap((m) =>
       m.id === GENERAL_MODULE_ID
         ? m.fields
-        : [{ id: m.id, key_name: m.name, key_value: '', key_type: 'separator' }, ...m.fields]
-    ).map((f) => ({ n: f.key_name, v: f.key_value, t: f.key_type }))
+        : [{ id: m.id, key_name: m.name, key_label: '', key_value: '', key_type: 'separator' }, ...m.fields]
+    ).map((f) => ({ n: f.key_name, l: f.key_label, v: f.key_value, t: f.key_type }))
   );
 }
 
@@ -63,13 +63,18 @@ export function slugify(text: string): string {
 }
 
 export function buildPublishJson(modules: Module[], website: string) {
-  const data: { key: string; value: string; type: string }[] = [];
-  const mods: Record<string, { label: string; fields: { key: string; value: string; type: string }[] }> = {};
+  const data: { key: string; label: string; value: string; type: string }[] = [];
+  const mods: Record<string, { label: string; fields: { key: string; label: string; value: string; type: string }[] }> = {};
 
   const extract = (m: Module) =>
     m.fields
       .filter((f) => f.key_name.trim())
-      .map((f) => ({ key: f.key_name.trim(), value: f.key_value, type: f.key_type }));
+      .map((f) => ({
+        key: f.key_name.trim(),
+        label: f.key_label.trim() || f.key_name.trim(),
+        value: f.key_value,
+        type: f.key_type,
+      }));
 
   const general = modules.find((m) => m.id === GENERAL_MODULE_ID);
   if (general) {
@@ -96,10 +101,11 @@ export function buildPublishJson(modules: Module[], website: string) {
 
   const d = new Date();
   const pad = (n: number) => String(n).padStart(2, '0');
-  const published_at = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  const published_at = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 
   return {
     website,
+    schema_version: 1,
     published_at,
     total_fields: data.length,
     data,

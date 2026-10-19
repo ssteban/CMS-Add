@@ -6,6 +6,7 @@ FieldType = Literal['text', 'image', 'link', 'color', 'number', 'richtext', 'sep
 
 class FieldItem(BaseModel):
     key_name: str
+    key_label: str = ""
     key_value: str
     key_type: FieldType
 
@@ -17,6 +18,7 @@ class SaveFieldsRequest(BaseModel):
 class ViewField(BaseModel):
     id: int
     key_name: str
+    key_label: str
     key_value: str
     key_type: str
     created_at: str

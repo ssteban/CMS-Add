@@ -45,9 +45,9 @@ fetchContent().then(data => console.log("content:", data));
 setInterval(fetchContent, 5 * 60 * 1000);
 
 // Uso posterior (lee de caché, sin red):
-// contentCache.data        → campos planos
+// contentCache.data        → campos planos (key, label, value, type)
 // contentCache.modules     → campos agrupados por módulo
-// contentCache.published_at
+// contentCache.published_at / schema_version
 function getModule(slug) {
   return contentCache?.modules?.[slug]?.fields ?? [];
 }`;

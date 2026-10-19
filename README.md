@@ -47,7 +47,7 @@ websites (id_web, id_users FK, name, url, published_json JSONB, created_at, upda
 api_keys (id_key, id_web FK, key_name, api_key_hash UNIQUE, created_at, last_used_at)
 
 -- Campos del editor
-components (id_components, id_web FK, key_name, key_value, key_type, created_at, update_at)
+components (id_components, id_web FK, key_name, key_label, key_value, key_type, created_at, update_at)
 ```
 
 Migración extra en `backend/migration/add_published_json.sql` para agregar `published_json` a proyectos existentes.
@@ -98,30 +98,34 @@ tanto la lista plana (`data`, para compatibilidad) como la agrupación por módu
 ```json
 {
   "website": "Nombre del Proyecto",
-  "published_at": "2026-10-18 12:00:00",
+  "schema_version": 1,
+  "published_at": "2026-10-18T12:00:00",
   "total_fields": 3,
   "data": [
-    { "key": "titulo", "value": "Mi Web", "type": "text" },
-    { "key": "logo", "value": "https://...", "type": "image" },
-    { "key": "color_principal", "value": "#3b82f6", "type": "color" }
+    { "key": "titulo", "label": "Título", "value": "Mi Web", "type": "text" },
+    { "key": "logo", "label": "", "value": "https://...", "type": "image" },
+    { "key": "color_principal", "label": "Color principal", "value": "#3b82f6", "type": "color" }
   ],
   "modules": {
     "general": {
       "label": "General",
       "fields": [
-        { "key": "titulo", "value": "Mi Web", "type": "text" }
+        { "key": "titulo", "label": "Título", "value": "Mi Web", "type": "text" }
       ]
     },
     "hero": {
       "label": "Hero",
       "fields": [
-        { "key": "logo", "value": "https://...", "type": "image" },
-        { "key": "color_principal", "value": "#3b82f6", "type": "color" }
+        { "key": "logo", "label": "", "value": "https://...", "type": "image" },
+        { "key": "color_principal", "label": "Color principal", "value": "#3b82f6", "type": "color" }
       ]
     }
   }
 }
 ```
+
+`label` es la etiqueta legible definida en el editor; si está vacía se usa la
+`key`. `published_at` usa formato ISO 8601 (local, sin zona horaria).
 
 Tipos de campo soportados: `text`, `image`, `link`, `color`, `number`, `richtext`, `separator`.
 El tipo `separator` es interno del editor (delimita módulos) y no aparece en el JSON publicado.
