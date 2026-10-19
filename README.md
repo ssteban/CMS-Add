@@ -100,6 +100,10 @@ Migración extra en `backend/migration/add_published_json.sql` para agregar `pub
 | GET | `/api/v1/user/notifications` | Invitaciones pendientes del usuario |
 | POST | `/api/v1/user/notifications/{id}/accept` | Aceptar invitación (da acceso de edición) |
 | POST | `/api/v1/user/notifications/{id}/decline` | Rechazar invitación |
+| GET | `/api/v1/user/proyects/{id}/members` | Listar miembros con acceso (solo el dueño) |
+| DELETE | `/api/v1/user/proyects/{id}/members/{user_id}` | Quitar acceso a un miembro (solo el dueño) |
+| GET | `/api/v1/user/proyects/{id}/invitations` | Invitaciones pendientes del proyecto (solo el dueño) |
+| DELETE | `/api/v1/user/proyects/{id}/invitations/{inv_id}` | Cancelar una invitación pendiente (solo el dueño) |
 
 **Permisos:** los endpoints de campos/publicación aceptan al dueño **y** a los
 miembros (`project_members`). Las API Keys, editar/eliminar el proyecto y
@@ -121,6 +125,10 @@ El dueño de un proyecto puede invitar a otro usuario (por email registrado) a
 Restricciones para usuarios compartidos: no pueden eliminar el proyecto,
 gestionar credenciales API, editarlo (nombre/URL) ni compartirlo. Rechazar una
 invitación permite volver a recibir la misma invitación después.
+
+El dueño administra el acceso desde el mismo modal **Compartir** de cada
+proyecto: puede **quitar el acceso** de cualquier miembro en cualquier momento
+y **cancelar** invitaciones pendientes que ya no quiera mantener.
 
 ---
 
