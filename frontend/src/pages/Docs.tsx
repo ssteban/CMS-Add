@@ -32,8 +32,9 @@ console.log(data);`,
       code: `fetch("<url-del-backend>/api/v1/public/content?api_key=<tu-api-key>")
   .then(res => res.json())
   .then(data => {
+    const fields = Object.values(data.modules).flatMap(m => m.fields);
     document.getElementById("titulo").textContent =
-      data.data.find(f => f.key === "hero_title")?.value;
+      fields.find(f => f.key === "hero_title")?.value;
   });`,
     },
     {
@@ -117,8 +118,8 @@ print(data)`,
           <div className="space-y-4 text-slate-600 dark:text-slate-400 leading-relaxed">
             <p>
               El endpoint público devuelve un objeto JSON con la siguiente estructura. Todos los campos que hayas
-              definido en el editor aparecen dentro del array <code className="text-blue-600 bg-blue-50 dark:bg-blue-900/30 px-1.5 py-0.5 rounded text-sm font-mono">data</code>
-              y, agrupados por módulo, dentro de <code className="text-blue-600 bg-blue-50 dark:bg-blue-900/30 px-1.5 py-0.5 rounded text-sm font-mono">modules</code>.
+              definido en el editor aparecen dentro de <code className="text-blue-600 bg-blue-50 dark:bg-blue-900/30 px-1.5 py-0.5 rounded text-sm font-mono">modules</code>,
+              agrupados por módulo (slug → label + fields).
             </p>
 
             <div className="relative">
@@ -128,30 +129,34 @@ print(data)`,
   "schema_version": 1,
   "published_at": "2026-10-18T23:17:37",
   "total_fields": 3,
-  "data": [
-    {
-      "key": "hero_title",
-      "label": "Título principal",
-      "value": "Bienvenido a mi sitio",
-      "type": "text"
-    },
-    {
-      "key": "hero_image",
-      "label": "Imagen hero",
-      "value": "https://ejemplo.com/foto.jpg",
-      "type": "image"
-    },
-    {
-      "key": "cta_link",
-      "label": "",
-      "value": "https://ejemplo.com/contacto",
-      "type": "link"
-    }
-  ],
   "modules": {
     "general": {
       "label": "General",
-      "fields": [ ...mismos campos que data, agrupados... ]
+      "fields": [
+        {
+          "key": "hero_title",
+          "label": "Título principal",
+          "value": "Bienvenido a mi sitio",
+          "type": "text"
+        }
+      ]
+    },
+    "hero": {
+      "label": "Hero",
+      "fields": [
+        {
+          "key": "hero_image",
+          "label": "Imagen hero",
+          "value": "https://ejemplo.com/foto.jpg",
+          "type": "image"
+        },
+        {
+          "key": "cta_link",
+          "label": "",
+          "value": "https://ejemplo.com/contacto",
+          "type": "link"
+        }
+      ]
     }
   }
 }`}</code>
@@ -176,12 +181,8 @@ print(data)`,
                 <p className="text-xs text-slate-500 dark:text-slate-400">Número total de campos definidos en este proyecto.</p>
               </div>
               <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-4">
-                <p className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-1">data[]</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Array con todos los campos. Cada uno tiene key, label, value y type.</p>
-              </div>
-              <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-4">
                 <p className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-1">modules{}`{}`</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Campos agrupados por módulo (slug → label + fields).</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Todos los campos, agrupados por módulo. Cada campo tiene key, label, value y type.</p>
               </div>
             </div>
           </div>
@@ -415,16 +416,14 @@ const res = await fetch(
 );
 const json = await res.json();
 
-// 2. Renderizar en tu HTML
-document.getElementById("titulo").innerHTML =
-  json.data.find(f => f.key === "hero_title")?.value;
+// 2. Aplanar todos los campos de todos los módulos
+const fields = Object.values(json.modules).flatMap(m => m.fields);
+const get = (key) => fields.find(f => f.key === key)?.value;
 
-document.getElementById("imagen").src =
-  json.data.find(f => f.key === "hero_image")?.value;
-
-document.getElementById("boton").href =
-  json.data.find(f => f.key === "cta_link")?.value;
-
+// 3. Renderizar en tu HTML
+document.getElementById("titulo").innerHTML = get("hero_title");
+document.getElementById("imagen").src = get("hero_image");
+document.getElementById("boton").href = get("cta_link");
 document.getElementById("boton").textContent = "Comenzar";`}</code>
             </pre>
 

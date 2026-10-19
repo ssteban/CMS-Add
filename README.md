@@ -92,8 +92,8 @@ Migración extra en `backend/migration/add_published_json.sql` para agregar `pub
 ## JSON Publicado (estructura de salida)
 
 El editor permite organizar los campos en **módulos**. El JSON publicado expone
-tanto la lista plana (`data`, para compatibilidad) como la agrupación por módulos
-(`modules`), donde cada módulo es un slug derivado de su nombre:
+los campos agrupados por módulo en `modules`, donde cada módulo es un slug
+derivado de su nombre:
 
 ```json
 {
@@ -101,11 +101,6 @@ tanto la lista plana (`data`, para compatibilidad) como la agrupación por módu
   "schema_version": 1,
   "published_at": "2026-10-18T12:00:00",
   "total_fields": 3,
-  "data": [
-    { "key": "titulo", "label": "Título", "value": "Mi Web", "type": "text" },
-    { "key": "logo", "label": "", "value": "https://...", "type": "image" },
-    { "key": "color_principal", "label": "Color principal", "value": "#3b82f6", "type": "color" }
-  ],
   "modules": {
     "general": {
       "label": "General",

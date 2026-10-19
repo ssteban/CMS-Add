@@ -63,8 +63,8 @@ export function slugify(text: string): string {
 }
 
 export function buildPublishJson(modules: Module[], website: string) {
-  const data: { key: string; label: string; value: string; type: string }[] = [];
   const mods: Record<string, { label: string; fields: { key: string; label: string; value: string; type: string }[] }> = {};
+  let total_fields = 0;
 
   const extract = (m: Module) =>
     m.fields
@@ -79,7 +79,7 @@ export function buildPublishJson(modules: Module[], website: string) {
   const general = modules.find((m) => m.id === GENERAL_MODULE_ID);
   if (general) {
     const fields = extract(general);
-    data.push(...fields);
+    total_fields += fields.length;
     if (fields.length > 0) {
       mods['general'] = { label: 'General', fields };
     }
@@ -88,7 +88,7 @@ export function buildPublishJson(modules: Module[], website: string) {
   for (const m of modules) {
     if (m.id === GENERAL_MODULE_ID) continue;
     const fields = extract(m);
-    data.push(...fields);
+    total_fields += fields.length;
     const base = slugify(m.name || 'Módulo');
     let slug = base;
     let i = 2;
@@ -107,8 +107,7 @@ export function buildPublishJson(modules: Module[], website: string) {
     website,
     schema_version: 1,
     published_at,
-    total_fields: data.length,
-    data,
+    total_fields,
     modules: mods,
   };
 }

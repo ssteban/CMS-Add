@@ -81,9 +81,9 @@ async def publish_fields(proyect_id: int, user_id: int = Depends(verify_access_t
             break
 
     fields = fields_result.get("fields", [])
-    data = []
     modules = {}
     current_slug = None
+    total_fields = 0
 
     for f in fields:
         if f["key_type"] == "separator":
@@ -103,7 +103,7 @@ async def publish_fields(proyect_id: int, user_id: int = Depends(verify_access_t
                 "value": f["key_value"],
                 "type": f["key_type"]
             }
-            data.append(item)
+            total_fields += 1
             if current_slug is None:
                 modules["general"] = {"label": "General", "fields": []}
                 current_slug = "general"
@@ -113,7 +113,7 @@ async def publish_fields(proyect_id: int, user_id: int = Depends(verify_access_t
         "website": project_name,
         "schema_version": 1,
         "published_at": datetime.now().isoformat(timespec="seconds"),
-        "total_fields": len(data),
+        "total_fields": total_fields,
         "modules": modules
     }
 
